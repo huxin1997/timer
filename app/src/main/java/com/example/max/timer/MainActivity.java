@@ -1,6 +1,7 @@
 package com.example.max.timer;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,14 +33,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnStart.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
 
                 time.start();
 
-                new AlertDialog.Builder(MainActivity.this)
+                final AlertDialog dateDialog = new AlertDialog.Builder(MainActivity.this)
                         .setTitle("设置倒计时")
                         .setView(buildCalendar())
+                        .setPositiveButton("取消", null)
+                        .setNegativeButton("确认", null)
                         .show();
             }
         });
@@ -52,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
                 Log.i(TAG, "onSelectedDayChange: year " + year + " month " + month + " day " + dayOfMonth);
-                txDate.setText(year+"年"+ month +"月" + dayOfMonth+"日");
+                txDate.setText(year + "年" + month + "月" + dayOfMonth + "日");
 
             }
         });
