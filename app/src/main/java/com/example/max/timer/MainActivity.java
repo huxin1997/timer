@@ -1,9 +1,6 @@
 package com.example.max.timer;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Build;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -12,11 +9,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
-import android.widget.Chronometer;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.Date;
+import com.example.max.timer.adapter.TimerListAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private TextView txDate;
     private CalendarView calendar;
+    private ListView listView;
+    private Button btnAdd;
+    private List<HashMap<String, Object>> data;
+    private TimerListAdapter timerListAdapter;
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -33,48 +37,52 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initView();
-    }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void initView() {
-        final Chronometer time = (Chronometer) findViewById(R.id.chronometer_main);
-        Button btnStart = (Button) findViewById(R.id.btn_start);
-        txDate = (TextView) findViewById(R.id.tx_date);
+        initData();
 
-        time.setCountDown(true);
+        initTimerList();
 
-        time.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                String s = chronometer.getText().toString();
-                if ("00:00".equals(s)) {
-                    time.stop();
-                    Toast.makeText(MainActivity.this, "时间到了", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-
-        btnStart.setOnClickListener(new View.OnClickListener() {
-
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                final AlertDialog dateDialog = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("设置倒计时")
-                        .setView(buildCalendar())
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                time.setBase(SystemClock.elapsedRealtime());
-                                time.start();
-                            }
-                        })
-                        .setNegativeButton("取消", null)
-                        .show();
+                HashMap<String,Object> map=new HashMap<>();
+                map.put("toTime",System.currentTimeMillis() + 10 * 1000);
+                data.add(map);
+                timerListAdapter.notifyDataSetChanged();
             }
         });
 
+    }
+
+    private void initTimerList() {
+        if (timerListAdapter == null){
+            timerListAdapter = new TimerListAdapter(MainActivity.this, data);
+            listView.setAdapter(timerListAdapter);
+        }else {
+            timerListAdapter.notifyDataSetChanged();
+        }
+
+    }
+
+    private void initData() {
+        //TODO get http request json form here, then insert data to adapter
+
+        data = new ArrayList<HashMap<String, Object>>();
+        Object[] data1 = new Object[]{System.currentTimeMillis() + 10 * 1000, System.currentTimeMillis() + 20 * 1000, System.currentTimeMillis() + 30 * 1000};
+        Object[] data2 = new Object[]{};
+
+        for (int k = 0; k < data1.length; k++) {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("toTime", data1[k]);
+//            map.put("Redundance", data2[k]);
+            data.add(map);
+        }
+
+    }
+
+    private void initView() {
+        listView = (ListView) findViewById(R.id.lv_my_timer_list);
+        btnAdd = (Button) findViewById(R.id.btn_add_timer);
     }
 
     private CalendarView buildCalendar() {
@@ -87,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         return calendar;
     }
 }
