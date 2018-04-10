@@ -47,6 +47,7 @@
         android:layout_height="match_parent">
 
         <Button
+            android:id="@+id/btn_del_one_timer"
             android:layout_width="65dp"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="6dp"
@@ -55,6 +56,26 @@
             android:textColor="@android:color/white"
             android:background="@drawable/swipe_button_info"
             android:text="@string/delete_a_line" />
+        <Button
+            android:id="@+id/btn_update_one_timer"
+            android:layout_width="65dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/white"
+            android:background="@drawable/swipe_button_info"
+            android:text="@string/update_timer" />
+        <Button
+            android:id="@+id/btn_totop_one_timer"
+            android:layout_width="65dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/white"
+            android:background="@drawable/swipe_button_info"
+            android:text="@string/totop_timer" />
     </LinearLayout>
 
 </com.mcxtzhang.swipemenulib.SwipeMenuLayout>

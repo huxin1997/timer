@@ -3,4 +3,8 @@
     <string name="delete_a_line">删 除</string>
     <string name="add_timer">添 加</string>
     <string name="timer_to_time">距 %s</string>
+    <string name="update_timer">编 辑</string>
+    <string name="totop_timer">置 顶</string>
+    <string name="create_person_count_down_timer">创建个人倒计时</string>
+    <string name="create_team_count_down_timer">创建团队倒计时</string>
 </resources>
