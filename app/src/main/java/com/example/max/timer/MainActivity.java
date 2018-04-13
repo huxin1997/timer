@@ -2,10 +2,15 @@ package com.example.max.timer;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,9 +32,16 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.max.timer.adapter.TimerListAdapter;
+import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
 
+import java.io.Serializable;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,15 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private static final String TAG = "MainActivity";
-    private TextView txDate;
     private RecyclerView listView;
     private FloatingActionButton btnAdd;
-    private List<HashMap<String, Object>> data;
+    private List<TimerBean> data;
     private TimerListAdapter timerListAdapter;
-    private int[] selectDateTempStorage = new int[3];
-    private AlertDialog.Builder builder;
     private View[] views;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +62,11 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        views = Tool.buildTimePickView(MainActivity.this);
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout_main);
+        ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.drawer_open,R.string.drawer_close);
+        drawerLayout.setDrawerListener(toggle);
+        toggle.syncState();
 
         initView();
 //
@@ -71,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 WindowManager.LayoutParams attributes = getWindow().getAttributes();
-                attributes.alpha=0.3f;
+                attributes.alpha=0.95f;
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
                 getWindow().setAttributes(attributes);
                 View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.add_timer_pop_selector,null,false);
@@ -107,11 +119,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void selectorTime(){
-        View[] views = Tool.buildTimePickView(MainActivity.this);
-        AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
-        builder.setView(views[0]);
-        AlertDialog alertDialog = builder.setTitle("设置时间").create();
-        alertDialog.show();
+        startActivityForResult(new Intent(MainActivity.this,TimerCreateActivity.class), SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_POST);
     }
 
 
@@ -126,22 +134,27 @@ public class MainActivity extends AppCompatActivity {
     private void initData() {
         //TODO get http request json form here, then insert data to adapter
 
-        data = new ArrayList<HashMap<String, Object>>();
+        data=new ArrayList<>();
 
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("timerToWhenLong", SystemClock.elapsedRealtime() + 20 * 60 * 1000);
-        HashMap<String, Object> map1 = new HashMap<>();
-        map1.put("timerToWhenLong", SystemClock.elapsedRealtime() + 30 * 60 * 1000);
+    }
 
-        data.add(map);
-        data.add(map1);
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode){
+            case SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT:{
+                TimerBean timerBean = (TimerBean) data.getSerializableExtra("timerBean");
+                this.data.add(timerBean);
+                timerListAdapter.notifyDataSetChanged();
+                Log.e(TAG,timerBean.toString());
+                break;
+            }
+        }
     }
 
     private void initView() {
         listView = (RecyclerView) findViewById(R.id.recycler_view_timer_list);
         btnAdd = (FloatingActionButton) findViewById(R.id.btn_add_timer);
     }
-
 
 }

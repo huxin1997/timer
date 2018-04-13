@@ -18,9 +18,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.max.timer.R;
+import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.tool.SystemConfig;
 
 import org.w3c.dom.Text;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,11 +38,14 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
     private static final String TAG = "TimerListAdapter";
 
     private List<HashMap<String,Object>> data;
+    private List<TimerBean> data_;
     private Context mContext;
-    private SimpleDateFormat sdf=new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+    private SimpleDateFormat sdf=new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+    private SimpleDateFormat sdfParse=new SimpleDateFormat("yyyyMMddHHmm");
+    private Date parse;
 
-    public TimerListAdapter(Context context, List<HashMap<String,Object>> data) {
-        this.data=data;
+    public TimerListAdapter(Context context, List<TimerBean> data_) {
+        this.data_=data_;
         mContext=context;
     }
 
@@ -53,29 +59,61 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
 //    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onBindViewHolder(TimerViewHolder holder, final int position) {
-        long timerToWhenLong = (long) data.get(position).get("timerToWhenLong");
-        Log.e(TAG,timerToWhenLong+"");
-        holder.timerToWhenText.setText(sdf.format(new Date()));
-        holder.chronometer.setBase((long) data.get(position).get("timerToWhenLong"));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            holder.chronometer.setCountDown(true);
-            holder.chronometer.start();
+
+        TimerBean timerBean = data_.get(position);
+        try {
+            parse = sdfParse.parse(timerBean.getDateString());
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+        long l = (parse.getTime() - System.currentTimeMillis());
+        final int ceil = (int) Math.ceil(l /1000 / 60 / 60);
+        if (ceil<24) {
+            holder.chronometerT.setVisibility(View.GONE);
+            holder.chronometer.setVisibility(View.VISIBLE);
+            holder.timerToWhenText.setText(sdf.format(parse.getTime()));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                holder.chronometer.setCountDown(true);
+                holder.chronometer.setBase(SystemClock.elapsedRealtime() + l);
+                holder.chronometer.start();
+            }else {
+                Toast.makeText(mContext, "控件不支持你的系统版本！", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            holder.chronometer.setVisibility(View.GONE);
+            holder.chronometerT.setVisibility(View.VISIBLE);
+            int allDay = (int)Math.ceil(l /1000 / 60 / 60 / 24);
+            holder.timerToWhenText.setText(sdf.format(parse.getTime()));
+            holder.chronometerT.setText("还有"+allDay+"天");
+        }
+        holder.chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+            @Override
+            public void onChronometerTick(Chronometer chronometer) {
+                String s = chronometer.getText().toString();
+                if(s.equals("00:00")||s.contains("-")){
+                    chronometer.setBase(SystemClock.elapsedRealtime());
+                    chronometer.stop();
+                }
+            }
+        });
         holder.delThisTimer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                data.remove(position);
+                data_.remove(position);
                 notifyDataSetChanged();
             }
         });
     }
 
+
+
     @Override
     public int getItemCount() {
-        if(data==null){
+        if(data_==null){
             return 0;
         }
-        return data.size();
+        return data_.size();
     }
 
 
@@ -84,12 +122,14 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
         TextView timerToWhenText;
         Button delThisTimer;
         Chronometer chronometer;
+        TextView chronometerT;
 
         public TimerViewHolder(View itemView) {
             super(itemView);
             timerToWhenText= (TextView) itemView.findViewById(R.id.tv_date_list_item_own);
             delThisTimer= (Button) itemView.findViewById(R.id.btn_del_one_timer);
             chronometer= (Chronometer) itemView.findViewById(R.id.chronometer_list_item_own);
+            chronometerT= (TextView) itemView.findViewById(R.id.textview_list_item_own);
         }
     }
 
