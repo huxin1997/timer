@@ -65,4 +65,14 @@ public class Tool {
         }
         return ret.toString();
     }
+
+    public static String parseDate(int y, int m, int d, int h, int M) {
+        String y_,m_,d_,h_,M_;
+        y_=String.valueOf(y);
+        m_ = m<=9?"0"+m:""+m;
+        d_ = d<=9?"0"+d:""+d;
+        h_ = h<=9?"0"+h:""+h;
+        M_ = M<=9?"0"+M:""+M;
+        return y_+m_+d_+h_+M_;
+    }
 }

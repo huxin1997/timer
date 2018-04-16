@@ -16,7 +16,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TimerCreateActivity"></activity>
+        <activity android:name=".TimerCreateActivity" />
+        <activity android:name=".TeamTimerActivity" />
+        <activity android:name=".TDetailPageActivity"></activity>
     </application>
 
 </manifest>

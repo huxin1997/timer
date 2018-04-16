@@ -4,8 +4,6 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ObbInfo;
-import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,13 +18,9 @@ import com.example.max.timer.bean.TimerBean;
 import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
 
-import java.lang.reflect.Field;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
-public class TimerCreateActivity extends AppCompatActivity implements View.OnClickListener {
-
+public class TeamTimerActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText etDate, etTime, etName;
     private int[] dateIntList = new int[]{-1,-1,-1};
@@ -36,7 +30,8 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_timer_create);
+        setContentView(R.layout.activity_team_timer);
+
 
         etDate = (EditText) findViewById(R.id.et_input_time_selector);
         etTime = (EditText) findViewById(R.id.et_input_time_time_selector);
@@ -51,13 +46,13 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
             public void onClick(View v) {
                 for(int rs:dateIntList){
                     if(rs==-1){
-                        Toast.makeText(TimerCreateActivity.this, "您日期未选择！", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(TeamTimerActivity.this, "您日期未选择！", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
                 for(int rs:timeIntList){
                     if(rs==-1){
-                        Toast.makeText(TimerCreateActivity.this, "您时间未选择！", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(TeamTimerActivity.this, "您时间未选择！", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
@@ -69,9 +64,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                 finish();
             }
         });
-
     }
-
 
 
     @Override
@@ -93,7 +86,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
     private void showTimeSelector() {
         int hours = new Date().getHours();
         int minutes = new Date().getMinutes();
-        TimePickerDialog timePickerDialog = new TimePickerDialog(TimerCreateActivity.this, new TimePickerDialog.OnTimeSetListener() {
+        TimePickerDialog timePickerDialog = new TimePickerDialog(TeamTimerActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 timeIntList[0] = hourOfDay;
@@ -118,7 +111,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
 
     private void showDateSelector() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            DatePickerDialog datePickerDialog = new DatePickerDialog(TimerCreateActivity.this);
+            DatePickerDialog datePickerDialog = new DatePickerDialog(TeamTimerActivity.this);
             datePickerDialog.setOnDateSetListener(new DatePickerDialog.OnDateSetListener() {
                 @Override
                 public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -130,7 +123,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
             });
             datePickerDialog.show();
         } else {
-            DatePicker datePicker = new DatePicker(TimerCreateActivity.this);
+            DatePicker datePicker = new DatePicker(TeamTimerActivity.this);
             datePicker.init(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), new DatePicker.OnDateChangedListener() {
                 @Override
                 public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -139,7 +132,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                     dateIntList[2] = dayOfMonth;
                 }
             });
-            AlertDialog.Builder builder = new AlertDialog.Builder(TimerCreateActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(TeamTimerActivity.this);
             builder.setTitle("设置日期")
                     .setView(datePicker)
                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {

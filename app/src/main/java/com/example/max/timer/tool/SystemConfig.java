@@ -10,4 +10,6 @@ public final class SystemConfig {
     public static final int ACTIVITY_MAIN_ACTIVITY_RESULT=4000;
     public static final int ACTIVITY_TIMER_CREATE_ACTIVITY_POST=5001;
     public static final int ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT=4001;
+    public static final int ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_POST=5002;
+    public static final int ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_RESULT=4002;
 }

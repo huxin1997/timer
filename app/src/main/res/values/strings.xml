@@ -6,7 +6,7 @@
     <string name="update_timer">编 辑</string>
     <string name="totop_timer">置 顶</string>
     <string name="create_person_count_down_timer">创建个人倒计时</string>
-    <string name="create_team_count_down_timer">创建团队倒计时</string>
+    <string name="create_team_count_down_timer">创建组倒计时</string>
     <string name="text_create_one_timer">创建一个倒计时</string>
     <string name="drawer_open">open</string>
     <string name="drawer_close">close</string>
@@ -16,4 +16,6 @@
     <string name="et_select_one_date">选择一个日期</string>
     <string name="et_select_one_time">选择一个时间</string>
     <string name="create_timer_nickname">我的倒计时</string>
+    <string name="create_group_timer">创建一个组倒计时</string>
+    <string name="create_group_nickname">我的组倒计时</string>
 </resources>

@@ -5,12 +5,14 @@ import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.RequiresApi;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.Chronometer;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 import com.example.max.timer.R;
 import com.example.max.timer.bean.TimerBean;
 import com.example.max.timer.tool.SystemConfig;
+import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 
 import org.w3c.dom.Text;
 
@@ -43,6 +46,7 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
     private SimpleDateFormat sdf=new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
     private SimpleDateFormat sdfParse=new SimpleDateFormat("yyyyMMddHHmm");
     private Date parse;
+    private OnItemClickListener mOnItemClickListener;
 
     public TimerListAdapter(Context context, List<TimerBean> data_) {
         this.data_=data_;
@@ -59,6 +63,20 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
 //    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onBindViewHolder(TimerViewHolder holder, final int position) {
+
+        final TimerViewHolder holder_ = holder;
+
+        if(mOnItemClickListener != null){
+            //为ItemView设置监听器
+            holder.cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.e(TAG,"test");
+                    int pos = holder_.getLayoutPosition();
+                    mOnItemClickListener.onItemClick(holder_.itemView,pos);
+                }
+            });
+        }
 
         TimerBean timerBean = data_.get(position);
         try {
@@ -92,7 +110,6 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
             public void onChronometerTick(Chronometer chronometer) {
                 String s = chronometer.getText().toString();
                 if(s.equals("00:00")||s.contains("-")){
-                    chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.stop();
                 }
             }
@@ -123,6 +140,8 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
         Button delThisTimer;
         Chronometer chronometer;
         TextView chronometerT;
+//        SwipeMenuLayout swipeMenuLayout;
+        CardView cardView;
 
         public TimerViewHolder(View itemView) {
             super(itemView);
@@ -130,7 +149,17 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
             delThisTimer= (Button) itemView.findViewById(R.id.btn_del_one_timer);
             chronometer= (Chronometer) itemView.findViewById(R.id.chronometer_list_item_own);
             chronometerT= (TextView) itemView.findViewById(R.id.textview_list_item_own);
+//            swipeMenuLayout= (SwipeMenuLayout) itemView.findViewById(R.id.card_view_main_container);
+            cardView= (CardView) itemView.findViewById(R.id.card_view_main_container);
         }
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(View view,int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
+        this.mOnItemClickListener = mOnItemClickListener;
     }
 
 }

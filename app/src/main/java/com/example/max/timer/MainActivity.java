@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -111,13 +112,17 @@ public class MainActivity extends AppCompatActivity {
                 teamTimer.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        createTeamTimer();
+                        popupWindow.dismiss();
                     }
                 });
             }
         });
     }
 
+    private void createTeamTimer() {
+        startActivityForResult(new Intent(MainActivity.this,TeamTimerActivity.class), SystemConfig.ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_POST);
+    }
     private void selectorTime(){
         startActivityForResult(new Intent(MainActivity.this,TimerCreateActivity.class), SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_POST);
     }
@@ -128,7 +133,15 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         listView.setAdapter(timerListAdapter);
         listView.setLayoutManager(linearLayoutManager);
+
+        timerListAdapter.setOnItemClickListener(new TimerListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                startActivity(new Intent(MainActivity.this,TDetailPageActivity.class));
+            }
+        });
         timerListAdapter.notifyDataSetChanged();
+
     }
 
     private void initData() {
