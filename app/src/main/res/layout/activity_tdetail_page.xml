@@ -52,7 +52,7 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:textColor="#222"
-                android:text="这是一句标准的十个字再加五个字"
+                android:text="@string/detail_timer_name_example"
                 android:textSize="22sp" />
 
             <TextView
@@ -62,7 +62,7 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:textColor="#222"
-                android:text="123456"
+                android:text="@string/detail_timer_number_example"
                 android:textSize="20sp" />
         </LinearLayout>
     </RelativeLayout>
@@ -74,12 +74,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp"
+        android:background="@drawable/left_right_none_border"
         >
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="倒计时列表"
+            android:text="@string/detail_timer_list_str"
             android:textSize="16sp"
             />
         <TextView
@@ -87,7 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:text="管理"/>
+            android:text="@string/detail_timer_manage_str"/>
     </LinearLayout>
 
     <ListView
@@ -99,15 +100,38 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:padding="8dp"
-            android:text="以下成员在组中："/>
+            android:background="@drawable/left_right_none_border"
+            android:text="@string/detail_timer_member_title"/>
 
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="40dp">
+            <LinearLayout
+                android:id="@+id/ll_member_list_container"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="40dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="temptest"
+                    android:layout_margin="8dp"
+                    android:padding="4dp"
+                    android:textColor="#e7e7e7"
+                    android:background="@drawable/tag_textview_name"
+                    />
+
+            </LinearLayout>
+        </HorizontalScrollView>
     </LinearLayout>
 
 </LinearLayout>
