@@ -18,7 +18,7 @@
         </activity>
         <activity android:name=".TimerCreateActivity" />
         <activity android:name=".TeamTimerActivity" />
-        <activity android:name=".TDetailPageActivity"></activity>
+        <activity android:name=".TDetailPageActivity"> </activity>
     </application>
 
 </manifest>

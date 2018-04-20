@@ -23,4 +23,5 @@
     <string name="detail_timer_list_str">倒计时列表</string>
     <string name="detail_timer_manage_str">管理</string>
     <string name="detail_timer_member_title">以下成员在组中：</string>
+    <string name="detail_show_all_group_man">查看所有</string>
 </resources>

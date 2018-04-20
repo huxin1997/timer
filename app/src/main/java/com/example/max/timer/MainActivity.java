@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.example.max.timer.adapter.TimerListAdapter;
 import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.tool.DBHelper;
 import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
 
@@ -101,7 +102,9 @@ public class MainActivity extends AppCompatActivity {
                         getWindow().setAttributes(attributes);
                     }
                 });
-                popupWindow.showAsDropDown(v,-110,-460);
+                int i = btnAdd.getHeight() + 250;
+                Log.e(TAG,i+"");
+                popupWindow.showAsDropDown(v,-110,-i);
                 personTimer.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -149,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
 
         data=new ArrayList<>();
 
+        //TODO get data from database
+        List<TimerBean> timerBeans = DBHelper.readTimer4Database(MainActivity.this);
+        data.addAll(timerBeans);
     }
 
     @Override

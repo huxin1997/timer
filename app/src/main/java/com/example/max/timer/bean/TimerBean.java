@@ -8,6 +8,9 @@ import java.io.Serializable;
 
 public class TimerBean implements Serializable {
 
+    public static final int TYPE_GROUP_TIMER=-1;
+    public static final int TYPE_PRESON_TIMER=-2;
+
     private String timerID;
     private String timerNickName;
     private int year;
@@ -16,6 +19,8 @@ public class TimerBean implements Serializable {
     private int hour;
     private int minute;
     private String dateString;
+    private int timerType=TYPE_PRESON_TIMER;
+
 
     @Override
     public String toString() {
@@ -28,7 +33,16 @@ public class TimerBean implements Serializable {
                 ", hour=" + hour +
                 ", minute=" + minute +
                 ", dateString='" + dateString + '\'' +
+                ", timerType=" + timerType +
                 '}';
+    }
+
+    public static int getTypeGroupTimer() {
+        return TYPE_GROUP_TIMER;
+    }
+
+    public static int getTypePresonTimer() {
+        return TYPE_PRESON_TIMER;
     }
 
     public String getTimerID() {
@@ -95,11 +109,15 @@ public class TimerBean implements Serializable {
         this.dateString = dateString;
     }
 
-    public TimerBean() {
-
+    public int getTimerType() {
+        return timerType;
     }
 
-    public TimerBean(String timerID, String timerNickName, int year, int month, int day, int hour, int minute, String dateString) {
+    public void setTimerType(int timerType) {
+        this.timerType = timerType;
+    }
+
+    public TimerBean(String timerID, String timerNickName, int year, int month, int day, int hour, int minute, String dateString, int timerType) {
         this.timerID = timerID;
         this.timerNickName = timerNickName;
         this.year = year;
@@ -108,5 +126,9 @@ public class TimerBean implements Serializable {
         this.hour = hour;
         this.minute = minute;
         this.dateString = dateString;
+        this.timerType = timerType;
+    }
+
+    public TimerBean() {
     }
 }

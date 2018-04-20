@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView android:id="@+id/tv_detail_man_name"
+    android:layout_width="wrap_content"
+    android:layout_height="25dp"
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="2dp"
+    android:background="@drawable/tag_textview_name"
+    android:padding="4dp"
+    android:textColor="#e7e7e7"
+    xmlns:android="http://schemas.android.com/apk/res/android" />
