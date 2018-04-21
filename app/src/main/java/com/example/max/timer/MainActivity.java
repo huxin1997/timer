@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.example.max.timer.adapter.TimerListAdapter;
 import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.service.TimeCheckANetCheckService;
 import com.example.max.timer.tool.DBHelper;
 import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
@@ -78,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
 
         initFabButton();
 
+        initService();
+
+    }
+
+    private void initService() {
+        startService(new Intent(MainActivity.this, TimeCheckANetCheckService.class));
     }
 
     private void initFabButton() {
