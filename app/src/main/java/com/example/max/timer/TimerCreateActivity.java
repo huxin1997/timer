@@ -17,6 +17,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.tool.DBHelper;
 import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
 
@@ -32,6 +33,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
     private int[] dateIntList = new int[]{-1,-1,-1};
     private int[] timeIntList = new int[]{-1,-1};
     private Button creator;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +64,16 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                     }
                 }
                 String dateString = Tool.parseDate(dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1]);
-                TimerBean timerBean = new TimerBean(Tool.MD5(dateString+etName.getText().toString()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString);
-                Intent intent = new Intent();
-                intent.putExtra("timerBean", timerBean);
-                setResult(SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT, intent);
-                finish();
+                TimerBean timerBean = new TimerBean(Tool.MD5(dateString+etName.getText().toString()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString,TimerBean.TYPE_PRESON_TIMER);
+                boolean b = DBHelper.saveTimer2Database(timerBean, TimerCreateActivity.this);
+                if(b){
+                    Intent intent = new Intent();
+                    intent.putExtra("timerBean", timerBean);
+                    setResult(SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT, intent);
+                    finish();
+                }else {
+                    Toast.makeText(TimerCreateActivity.this, "创建失败！", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

@@ -57,7 +57,7 @@ public class TeamTimerActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
                 String dateString = Tool.parseDate(dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1]);
-                TimerBean timerBean = new TimerBean(Tool.MD5(dateString+etName.getText().toString()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString);
+                TimerBean timerBean = new TimerBean(Tool.MD5(dateString+etName.getText().toString()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString,TimerBean.TYPE_GROUP_TIMER);
                 Intent intent = new Intent();
                 intent.putExtra("timerBean", timerBean);
                 setResult(SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT, intent);

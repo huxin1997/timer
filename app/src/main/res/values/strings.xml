@@ -18,4 +18,10 @@
     <string name="create_timer_nickname">我的倒计时</string>
     <string name="create_group_timer">创建一个组倒计时</string>
     <string name="create_group_nickname">我的组倒计时</string>
+    <string name="detail_timer_name_example">这是一句标准的十个字再加五个字</string>
+    <string name="detail_timer_number_example">123456</string>
+    <string name="detail_timer_list_str">倒计时列表</string>
+    <string name="detail_timer_manage_str">管理</string>
+    <string name="detail_timer_member_title">以下成员在组中：</string>
+    <string name="detail_show_all_group_man">查看所有</string>
 </resources>
