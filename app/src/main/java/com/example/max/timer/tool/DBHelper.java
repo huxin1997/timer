@@ -79,4 +79,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return list;
     }
 
+    public static boolean delTimer4DB(Context context,String timerId){
+        SQLiteDatabase writableDatabase = new DBHelper(context, DBNAME, null, VERSION).getWritableDatabase();
+        int delete = writableDatabase.delete(TABLENAME, "hash_id=?", new String[]{timerId});
+        return delete>=1;
+    }
+
 }
