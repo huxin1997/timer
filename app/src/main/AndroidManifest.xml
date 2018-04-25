@@ -28,14 +28,16 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".TDetailPageActivity"
-            android:screenOrientation="portrait"> </activity>
+            android:screenOrientation="portrait"></activity>
 
-         <service
-         android:name=".service.TimeCheckANetCheckService"
-         android:enabled="true"
-         android:exported="true"
-         android:permission="android.permission.WRITE_EXTERNAL_STORAGE"> </service>
-        <activity android:name=".DetailPageActivity"></activity>
+        <service
+            android:name=".service.TimeCheckANetCheckService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.WRITE_EXTERNAL_STORAGE"></service>
+
+        <activity android:name=".DetailPageActivity" />
+        <activity android:name=".ScanActivity"></activity>
     </application>
 
 </manifest>

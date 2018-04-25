@@ -1,6 +1,8 @@
 package com.example.max.timer.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.max.timer.R;
 import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.service.TimeCheckANetCheckService;
 import com.example.max.timer.tool.DBHelper;
 
 import java.text.ParseException;
@@ -104,24 +107,53 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
                     @Override
                     public void onChronometerTick(Chronometer chronometer) {
                         String s = chronometer.getText().toString();
+                        holder_.chronometer.setFormat("%s");
                         if(s.equals("1:00:00")){
-
+                            Notification.Builder builder=new Notification.Builder(mContext);
+                            builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                    .setContentTitle("倒计时提示！")
+                                    .setContentText("您的倒计时还有一小时！");
+                            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                manager.notify(1,builder.build());
+                            }
                         }
                         if(s.equals("30:00")){
-
+                            Notification.Builder builder=new Notification.Builder(mContext);
+                            builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                    .setContentTitle("倒计时提示！")
+                                    .setContentText("您的倒计时还有30分钟！");
+                            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                manager.notify(2,builder.build());
+                            }
                         }
                         if(s.equals("15:00")){
-
+                            Notification.Builder builder=new Notification.Builder(mContext);
+                            builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                    .setContentTitle("倒计时提示！")
+                                    .setContentText("您的倒计时还有15分钟！");
+                            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                manager.notify(3,builder.build());
+                            }
                         }
                         if(s.equals("5:00")){
-
-                        }
-                        if(s.equals("00:00")){
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                holder_.chronometer.setCountDown(false);
+                            Notification.Builder builder=new Notification.Builder(mContext);
+                            builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                    .setContentTitle("倒计时提示！")
+                                    .setContentText("您的倒计时还有5分钟！");
+                            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                manager.notify(4,builder.build());
                             }
-                            holder_.chronometer.setFormat("超时：%s");
+                        }
+                        if(s.equals("00:00")||s.indexOf("−")!=-1){
+                            holder_.chronometer.stop();
                             holder_.chronometer.setOnChronometerTickListener(null);
+                            holder_.chronometer.setVisibility(View.GONE);
+                            holder_.chronometerT.setText("时间已到！");
+                            holder_.chronometerT.setVisibility(View.VISIBLE);
                         }
                     }
                 });
@@ -134,34 +166,34 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
                 holder.chronometerT.setVisibility(View.VISIBLE);
                 holder.chronometer.setVisibility(View.GONE);
 
-                @SuppressLint("HandlerLeak") final Handler handler=new Handler(){
-                    @Override
-                    public void handleMessage(Message msg) {
-                        super.handleMessage(msg);
-                        Long aLong = timeIntList.get(data_.get(position).getTimerID());
-                        aLong-=1000;
-                        Date date = new Date(aLong);
-                        if(aLong<1000){
-                            holder_.chronometerT.setText("时间已过");
-                            timers.get(position).cancel();
-                            timers.remove(position);
-                            notifyDataSetChanged();
-                            return;
-                        }else {
-                            holder_.chronometerT.setText(date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
-                        }
-                        notifyItemChanged(position,0);
-                    }
-                };
-                Timer timer=new Timer();
-                TimerTask timerTask=new TimerTask() {
-                    @Override
-                    public void run() {
-                        handler.sendEmptyMessage(0);
-                    }
-                };
-                timer.scheduleAtFixedRate(timerTask,0,1000);
-                timers.add(timer);
+//                @SuppressLint("HandlerLeak") final Handler handler=new Handler(){
+//                    @Override
+//                    public void handleMessage(Message msg) {
+//                        super.handleMessage(msg);
+//                        Long aLong = timeIntList.get(data_.get(position).getTimerID());
+//                        aLong-=1000;
+//                        Date date = new Date(aLong);
+//                        if(aLong<1000){
+//                            holder_.chronometerT.setText("时间已过");
+//                            timers.get(position).cancel();
+//                            timers.remove(position);
+//                            notifyDataSetChanged();
+//                            return;
+//                        }else {
+//                            holder_.chronometerT.setText(date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
+//                        }
+//                        notifyItemChanged(position,0);
+//                    }
+//                };
+//                Timer timer=new Timer();
+//                TimerTask timerTask=new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        handler.sendEmptyMessage(0);
+//                    }
+//                };
+//                timer.scheduleAtFixedRate(timerTask,0,1000);
+//                timers.add(timer);
             }
         } else {
             holder.chronometer.setVisibility(View.GONE);

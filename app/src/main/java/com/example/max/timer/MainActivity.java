@@ -62,10 +62,10 @@ public class MainActivity extends AppCompatActivity {
         initData();
 //
         initTimerList();
-//
+
         initFabButton();
 //
-        initService();
+//        initService();
 
         initWidgetHeight();
     }
@@ -204,6 +204,9 @@ public class MainActivity extends AppCompatActivity {
         //TODO get data from database
         List<TimerBean> timerBeans = DBHelper.readTimer4Database(MainActivity.this);
         data.addAll(timerBeans);
+
+
+
     }
 
     @Override

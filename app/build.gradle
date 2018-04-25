@@ -28,6 +28,8 @@ dependencies {
     compile 'com.android.support:cardview-v7:27+'
     compile 'com.android.support:design:27+'
     compile 'com.android.support.constraint:constraint-layout:1.1.0'
+    compile 'com.google.zxing:core:3.2.1'      //zxing核心依赖
+    compile 'com.journeyapps:zxing-android-embedded:3.3.0'  //生成二维码依赖
     testCompile 'junit:junit:4.12'
     compile 'com.github.mcxtzhang:SwipeDelMenuLayout:V1.3.0'
 }
