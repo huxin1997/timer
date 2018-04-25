@@ -96,6 +96,42 @@ public class TimeCheckANetCheckService extends Service {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                         manager.notify(NOTIFICATION_ONE_HOUR,builder.build());
                                     }
+                                }else if(spHour.getString(t.getTimerID(), "not yet").equals("not yet")&&t.getHour()-nowHour<=0&&t.getMinute()-nowMinute<=30){
+                                    spHourEdit.putString(t.getTimerID(),"has");
+                                    spHourEdit.apply();
+                                    spHourEdit.commit();
+                                    Notification.Builder builder=new Notification.Builder(TimeCheckANetCheckService.this);
+                                    builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                            .setContentTitle("倒计时提示！")
+                                            .setContentText("您的倒计时还有30分钟！");
+                                    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                        manager.notify(NOTIFICATION_ONE_HOUR,builder.build());
+                                    }
+                                }else if (spHour.getString(t.getTimerID(), "not yet").equals("not yet")&&t.getHour()-nowHour<=0&&t.getMinute()-nowMinute<=15){
+                                    spHourEdit.putString(t.getTimerID(),"has");
+                                    spHourEdit.apply();
+                                    spHourEdit.commit();
+                                    Notification.Builder builder=new Notification.Builder(TimeCheckANetCheckService.this);
+                                    builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                            .setContentTitle("倒计时提示！")
+                                            .setContentText("您的倒计时还有15分钟！");
+                                    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                        manager.notify(NOTIFICATION_ONE_HOUR,builder.build());
+                                    }
+                                }else if (spHour.getString(t.getTimerID(), "not yet").equals("not yet")&&t.getHour()-nowHour<=0&&t.getMinute()-nowMinute<=5){
+                                    spHourEdit.putString(t.getTimerID(),"has");
+                                    spHourEdit.apply();
+                                    spHourEdit.commit();
+                                    Notification.Builder builder=new Notification.Builder(TimeCheckANetCheckService.this);
+                                    builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                                            .setContentTitle("倒计时提示！")
+                                            .setContentText("您的倒计时还有5分钟！");
+                                    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                        manager.notify(NOTIFICATION_ONE_HOUR,builder.build());
+                                    }
                                 }
 
                                 Log.e("Toast",t.getTimerID()+" "+isHourToast+" "+is30MinuteToast+" "+is15MinuteToast+" "+is5MinuteToast+"");
