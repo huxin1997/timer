@@ -64,7 +64,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                     }
                 }
                 String dateString = Tool.parseDate(dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1]);
-                TimerBean timerBean = new TimerBean(Tool.MD5(dateString+etName.getText().toString()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString,TimerBean.TYPE_PRESON_TIMER);
+                TimerBean timerBean = new TimerBean(Tool.MD5(dateString+etName.getText().toString()+System.currentTimeMillis()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString,TimerBean.TYPE_PRESON_TIMER);
                 boolean b = DBHelper.saveTimer2Database(timerBean, TimerCreateActivity.this);
                 if(b){
                     Intent intent = new Intent();

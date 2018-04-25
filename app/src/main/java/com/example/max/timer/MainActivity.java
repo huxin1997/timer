@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 //
         initFabButton();
 //
-//        initService();
+        initService();
 
         initWidgetHeight();
     }
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     popMenu(v);
                 }
             });
-        else 
+        else
             btnAddN.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -95,12 +95,12 @@ public class MainActivity extends AppCompatActivity {
             });
     }
 
-    private void popMenuN(){
+    private void popMenuN() {
         WindowManager.LayoutParams attributes = getWindow().getAttributes();
         attributes.alpha = 0.95f;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         getWindow().setAttributes(attributes);
-        AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.add_timer_pop_selector, null, false);
         Button personTimer = (Button) view.findViewById(R.id.btn_pop_add_person_timer);
         Button teamTimer = (Button) view.findViewById(R.id.btn_pop_add_team_timer);
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void popMenu(View v){
+    private void popMenu(View v) {
         WindowManager.LayoutParams attributes = getWindow().getAttributes();
         attributes.alpha = 0.95f;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 getWindow().setAttributes(attributes);
             }
         });
-        int i = v.getHeight()*3+16;
+        int i = v.getHeight() * 3 + 16;
         Log.e(TAG, i + "");
         popupWindow.showAsDropDown(v, -152, -i);
         personTimer.setOnClickListener(new View.OnClickListener() {
@@ -180,7 +180,15 @@ public class MainActivity extends AppCompatActivity {
         timerListAdapter.setOnItemClickListener(new TimerListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                startActivity(new Intent(MainActivity.this, TDetailPageActivity.class));
+                if (data.get(position).getTimerType() == TimerBean.TYPE_GROUP_TIMER) {
+                    Intent intent = new Intent(MainActivity.this, TDetailPageActivity.class);
+                    intent.putExtra("bean",data.get(position));
+                    startActivity(intent);
+                }else{
+                    Intent intent = new Intent(MainActivity.this, DetailPageActivity.class);
+                    intent.putExtra("bean",data.get(position));
+                    startActivity(intent);
+                }
             }
         });
         timerListAdapter.notifyDataSetChanged();
@@ -191,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         //TODO get http request json form here, then insert data to adapter
 
         data = new ArrayList<>();
+
 
         //TODO get data from database
         List<TimerBean> timerBeans = DBHelper.readTimer4Database(MainActivity.this);

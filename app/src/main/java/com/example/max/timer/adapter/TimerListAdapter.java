@@ -104,7 +104,7 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
                     @Override
                     public void onChronometerTick(Chronometer chronometer) {
                         String s = chronometer.getText().toString();
-                        if(s.contains("00:00")||s.contains("-")){
+                        if(s.equals("00:00")||s.contains("-")){
                             chronometer.stop();
                         }
                     }
