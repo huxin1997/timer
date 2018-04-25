@@ -66,7 +66,7 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
 
 //    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public void onBindViewHolder(TimerViewHolder holder, final int position) {
+    public void onBindViewHolder(final TimerViewHolder holder, final int position) {
 
         final TimerViewHolder holder_ = holder;
 
@@ -104,8 +104,24 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
                     @Override
                     public void onChronometerTick(Chronometer chronometer) {
                         String s = chronometer.getText().toString();
-                        if(s.equals("00:00")||s.contains("-")){
-                            chronometer.stop();
+                        if(s.equals("1:00:00")){
+
+                        }
+                        if(s.equals("30:00")){
+
+                        }
+                        if(s.equals("15:00")){
+
+                        }
+                        if(s.equals("5:00")){
+
+                        }
+                        if(s.equals("00:00")){
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                holder_.chronometer.setCountDown(false);
+                            }
+                            holder_.chronometer.setFormat("超时：%s");
+                            holder_.chronometer.setOnChronometerTickListener(null);
                         }
                     }
                 });
