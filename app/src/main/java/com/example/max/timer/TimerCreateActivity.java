@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +23,9 @@ import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Date;
 
@@ -106,7 +110,13 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
             } else {
                 Toast.makeText(this,"扫描成功",Toast.LENGTH_LONG).show();
                 String ScanResult = intentResult.getContents();
-                Toast.makeText(this, ScanResult, Toast.LENGTH_SHORT).show();
+                Log.e("JB",ScanResult);
+                try {
+                    JSONObject jsonObject = new JSONObject(ScanResult);
+                    Log.e("JB",jsonObject.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             super.onActivityResult(requestCode,resultCode,data);

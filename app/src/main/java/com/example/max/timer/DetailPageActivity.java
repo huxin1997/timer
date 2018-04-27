@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +16,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.max.timer.bean.TimerBean;
+import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
 
 public class DetailPageActivity extends AppCompatActivity {
 
@@ -72,13 +80,22 @@ public class DetailPageActivity extends AppCompatActivity {
             BitMatrix result = null;
             MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
             try {
-                result = multiFormatWriter.encode(bean.getTimerID(), BarcodeFormat.QR_CODE, 400, 400);
+                Gson gson=new Gson();
+                TimerBean tempBean= (TimerBean) bean.clone();
+                tempBean.setTimerNickName(URLEncoder.encode(tempBean.getTimerNickName(),"utf-8"));
+                Log.e("json",gson.toJson(tempBean));
+                Log.e("json",bean.toString());
+                result = multiFormatWriter.encode(gson.toJson(tempBean), BarcodeFormat.QR_CODE, 450, 450);
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                 bitmap = barcodeEncoder.createBitmap(result);
             } catch (WriterException e) {
                 e.printStackTrace();
             } catch (IllegalArgumentException iae) {
                 iae.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
             }
             LinearLayout linearLayout=new LinearLayout(DetailPageActivity.this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);

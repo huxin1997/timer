@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by 贺石骞 on 2018/4/11.
  */
 
-public class TimerBean implements Serializable {
+public class TimerBean implements Serializable,Cloneable{
 
     public static final int TYPE_GROUP_TIMER=-1;
     public static final int TYPE_PRESON_TIMER=-2;
@@ -130,5 +130,10 @@ public class TimerBean implements Serializable {
     }
 
     public TimerBean() {
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
