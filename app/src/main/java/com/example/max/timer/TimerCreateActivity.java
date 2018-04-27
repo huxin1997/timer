@@ -27,6 +27,8 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Date;
 
 public class TimerCreateActivity extends AppCompatActivity implements View.OnClickListener {
@@ -110,11 +112,35 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
             } else {
                 Toast.makeText(this,"扫描成功",Toast.LENGTH_LONG).show();
                 String ScanResult = intentResult.getContents();
-                Log.e("JB",ScanResult);
                 try {
                     JSONObject jsonObject = new JSONObject(ScanResult);
                     Log.e("JB",jsonObject.toString());
+                    String timerNickName = URLDecoder.decode(jsonObject.getString("timerNickName"),"utf-8");
+                    dateIntList[0]=jsonObject.getInt("year");
+                    dateIntList[1]=jsonObject.getInt("month");
+                    dateIntList[2]=jsonObject.getInt("day");
+                    timeIntList[0]=jsonObject.getInt("hour");
+                    timeIntList[1]=jsonObject.getInt("minute");
+                    String dateString = Tool.parseDate(dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1]);
+                    TimerBean timerBean = new TimerBean(jsonObject.getString("timerID"), timerNickName, dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString, TimerBean.TYPE_PRESON_TIMER);
+                    if (timeIntList[0] >= 0 && timeIntList[0] <= 9) {
+                        if (timeIntList[1] >= 0 && timeIntList[1] <= 9) {
+                            etTime.setText("0" + timeIntList[0] + ":0" + timeIntList[1]);
+                        } else {
+                            etTime.setText("0" + timeIntList[0] + ":" + timeIntList[1]);
+                        }
+                    } else {
+                        if (timeIntList[1] >= 0 && timeIntList[1] <= 9) {
+                            etTime.setText(timeIntList[0] + ":0" + timeIntList[1]);
+                        } else {
+                            etTime.setText(timeIntList[0] + ":" + timeIntList[1]);
+                        }
+                    }
+                    etDate.setText(dateIntList[0] + "-" + dateIntList[1] + "-" + dateIntList[2]);
+                    etName.setText(timerNickName);
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             }
@@ -135,6 +161,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
             case R.id.et_input_time_time_selector: {
                 showTimeSelector();
                 break;
+
             }
         }
     }

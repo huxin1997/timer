@@ -1,6 +1,7 @@
 package com.example.max.timer;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,7 +26,8 @@ public class TeamTimerActivity extends AppCompatActivity implements View.OnClick
     private EditText etDate, etTime, etName;
     private int[] dateIntList = new int[]{-1,-1,-1};
     private int[] timeIntList = new int[]{-1,-1};
-    private Button creator;
+    private Button creator,addMember;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class TeamTimerActivity extends AppCompatActivity implements View.OnClick
         etTime = (EditText) findViewById(R.id.et_input_time_time_selector);
         etName = (EditText) findViewById(R.id.et_input_timer_name);
         creator = (Button) findViewById(R.id.btn_timer_create);
+        addMember=findViewById(R.id.btn_add_member);
 
         etDate.setOnClickListener(this);
         etTime.setOnClickListener(this);
@@ -64,6 +67,22 @@ public class TeamTimerActivity extends AppCompatActivity implements View.OnClick
                 finish();
             }
         });
+
+
+        addMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                if(progressDialog==null)
+//                    progressDialog = ProgressDialog.show(TeamTimerActivity.this, "请稍后...", "正在请求邀请链接~");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        
+                    }
+                }).start();
+            }
+        });
+
     }
 
 
