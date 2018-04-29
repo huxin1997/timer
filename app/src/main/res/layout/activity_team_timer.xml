@@ -3,128 +3,67 @@
 <ScrollView android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                />
+                android:background="?attr/colorPrimary" />
 
         </android.support.design.widget.AppBarLayout>
 
         <TextView
-            android:layout_margin="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/create_group_timer"
+            android:layout_margin="8dp"
             android:gravity="center"
-            android:textSize="24sp"
-            />
+            android:text="@string/create_group_timer"
+            android:textSize="24sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:padding="16dp"
-            >
+            android:padding="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="@string/create_timer_name"
-                />
+                android:text="@string/string_group_name"
+                android:textSize="20sp" />
 
             <EditText
                 android:id="@+id/et_input_timer_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:enabled="true"
+                android:gravity="center"
+                android:singleLine="true"
                 android:text="@string/create_group_nickname"
-                android:enabled="true"
-                android:textSize="20sp"
-                android:gravity="center"
-                android:singleLine="true"
-                />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:padding="16dp"
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="@string/create_timer_time"
-                />
-
-            <EditText
-                android:id="@+id/et_input_time_selector"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/et_select_one_date"
-                android:enabled="true"
-                android:focusable="false"
-                android:textSize="20sp"
-                android:gravity="center"
-                android:singleLine="true"
-                />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:padding="16dp"
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="@string/create_timer_time_time"
-                />
-
-            <EditText
-                android:id="@+id/et_input_time_time_selector"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/et_select_one_time"
-                android:enabled="true"
-                android:focusable="false"
-                android:letterSpacing="0.2"
-                android:textSize="20sp"
-                android:gravity="center"
-                android:singleLine="true"
-                android:textStyle="bold"
-                />
+                android:textSize="20sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="成员列表：(列表成员将同步你的倒计时)"
-                android:textSize="18sp"
                 android:layout_marginLeft="16dp"
-                />
+                android:text="成员列表：(列表成员将同步你的倒计时)"
+                android:textSize="18sp" />
 
             <LinearLayout
                 android:id="@+id/ll_add_timer_member"
@@ -138,26 +77,24 @@
                 android:id="@+id/btn_add_member"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="添加一个成员"
-                android:textColor="#fff"
-                android:background="@drawable/btn_create_timer_bg"
                 android:layout_marginBottom="0dp"
-                android:layout_marginTop="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                />
+                android:layout_marginTop="16dp"
+                android:background="@drawable/btn_create_timer_bg"
+                android:text="添加一个成员"
+                android:textColor="#fff" />
 
         </LinearLayout>
 
         <Button
             android:id="@+id/btn_timer_create"
-            android:layout_margin="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="创建"
-            android:textColor="#fff"
+            android:layout_margin="16dp"
             android:background="@drawable/btn_create_timer_bg"
-            />
+            android:text="创建"
+            android:textColor="#fff" />
 
 
     </LinearLayout>
