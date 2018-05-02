@@ -25,4 +25,7 @@
     <string name="detail_timer_member_title">以下成员在组中：</string>
     <string name="detail_show_all_group_man">查看所有</string>
     <string name="string_group_name">组名：</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -16,7 +16,13 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/real_content_layout"> </include>
+    <FrameLayout
+        android:id="@+id/real_content_container_fragment"
+        android:layout_width="match_parent"
+        android:layout_marginTop="55dp"
+        android:layout_height="match_parent">
+
+    </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_add_timer"
