@@ -78,7 +78,7 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
             holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.e(TAG,"test");
+
                     int pos = holder_.getLayoutPosition();
                     mOnItemClickListener.onItemClick(holder_.itemView,pos);
                 }

@@ -57,11 +57,6 @@ public class TDetailPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tdetail_page);
 
-        Intent intent = getIntent();
-        if(intent==null){ finish();return;}
-        bean = (TimerBean) intent.getSerializableExtra("bean");
-        if(bean==null){finish();return;}
-
         width = getWindow().getWindowManager().getDefaultDisplay().getWidth();
         if (timerDetailAdapter == null)
             timerDetailAdapter = new TimerDetailAdapter(TDetailPageActivity.this, data);
@@ -91,32 +86,6 @@ public class TDetailPageActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        String json = "{\"list\":[{\"name\":\"t1\"},{\"name\":\"t2\"},{\"name\":\"t3\"},{\"name\":\"tyhgyggygy4\"},{\"name\":\"t3\"},{\"name\":\"t4qweqweqwe\"},{\"name\":\"t3qweqweqwe\"},{\"name\":\"t4\"}]}";
-        try {
-            JSONObject jsonObject = new JSONObject(json);
-            JSONArray list = jsonObject.getJSONArray("list");
-            for (int i = 0; i < list.length(); i++) {
-                View inflate = LayoutInflater.from(TDetailPageActivity.this).inflate(R.layout.one_textview_layout, llManList, false);
-                TextView t = (TextView) inflate.findViewById(R.id.tv_detail_man_name);
-                String name = list.getJSONObject(i).getString("name");
-                this.list.add(name);
-                t.setText(name);
-                llManList.addView(t);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        //todo get more team timer list
-//        ...
-        data.add(new TimerBean(Tool.MD5("test"),"aha",2018,4,20,7,10,"201804200710",TimerBean.TYPE_GROUP_TIMER));
-        data.add(new TimerBean(Tool.MD5("test"),"aha",2018,4,20,7,10,"201804200710",TimerBean.TYPE_GROUP_TIMER));
-        data.add(new TimerBean(Tool.MD5("test"),"aha",2018,4,20,7,10,"201804200710",TimerBean.TYPE_GROUP_TIMER));
-        data.add(new TimerBean(Tool.MD5("test"),"aha",2018,4,20,7,10,"201804200710",TimerBean.TYPE_GROUP_TIMER));
-        data.add(new TimerBean(Tool.MD5("test"),"aha",2018,4,20,7,10,"201804200710",TimerBean.TYPE_GROUP_TIMER));
-        //todo over
-
-        timerList.setAdapter(timerDetailAdapter);
-
     }
 
     private void initListener() {
@@ -124,25 +93,6 @@ public class TDetailPageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-            }
-        });
-        showAllMan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View inflate = View.inflate(TDetailPageActivity.this, R.layout.show_all_member_list_layout, null);
-                ListView listView = (ListView) inflate.findViewById(R.id.lv_all_member);
-                listView.setAdapter(new ArrayAdapter<String>(TDetailPageActivity.this, android.R.layout.simple_list_item_1, TDetailPageActivity.this.list));
-                AlertDialog.Builder builder = new AlertDialog.Builder(TDetailPageActivity.this);
-                builder.setTitle("全部成员")
-                        .setView(inflate)
-                        .setPositiveButton("关闭", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
             }
         });
 

@@ -2,8 +2,10 @@ package com.example.max.timer.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +27,17 @@ import java.util.List;
 
 public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.GroupHolder> {
 
+    private static final String TAG = "GroupListAdapter";
     private List<GroupBean> data;
     private Context context;
+    private OnItemClickListener onItemClickListener;
+
+    public interface OnItemClickListener{
+        void onItemClick(View view,int position);
+    }
+    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
+        this.onItemClickListener = mOnItemClickListener;
+    }
 
     public GroupListAdapter(Context context, List<GroupBean> data){
         this.context=context;
@@ -43,6 +54,18 @@ public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.Grou
 
     @Override
     public void onBindViewHolder(@NonNull GroupHolder holder, int position) {
+
+        final GroupHolder holder1=holder;
+        if(onItemClickListener!=null){
+            holder.cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.e(TAG,"test");
+                    onItemClickListener.onItemClick(holder1.itemView,holder1.getLayoutPosition());
+                }
+            });
+        }
+
         holder.groupName.setText(data.get(position).getName());
     }
 
@@ -56,10 +79,12 @@ public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.Grou
     public class GroupHolder extends RecyclerView.ViewHolder{
 
         private TextView groupName;
+        private CardView cardView;
 
         public GroupHolder(View itemView) {
             super(itemView);
             groupName=itemView.findViewById(R.id.tv_group_name);
+            cardView=itemView.findViewById(R.id.group_card_view_container);
         }
     }
 

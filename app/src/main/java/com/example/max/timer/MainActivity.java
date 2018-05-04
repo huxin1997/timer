@@ -1,6 +1,7 @@
 package com.example.max.timer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     private static final String TAG = "MainActivity";
+    private static final String SP_NAME="SystemConfig";
+
     private FloatingActionButton btnAdd;
     private ImageView btnAddN;
     private Toolbar toolbar;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TimerListFragment timerListFragment;
     private GroupListFragment groupListFragment;
     private DrawerLayout drawerLayout;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,12 +77,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initView();
         initFabButton();
 //        initService();
-        initWidgetHeight();
+        initLogin();
     }
 
-    private void initWidgetHeight() {
+    private void initLogin() {
+        sharedPreferences = getSharedPreferences(SP_NAME, MODE_PRIVATE);
 
     }
+
 
     private void initService() {
         startService(new Intent(MainActivity.this, TimeCheckANetCheckService.class));
@@ -190,6 +196,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case SystemConfig.ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_RESULT: {
                 GroupBean group = (GroupBean) data.getSerializableExtra("group");
                 Toast.makeText(this, group.getHash() + "->" + group.getName(), Toast.LENGTH_SHORT).show();
+                if(groupListFragment==null)
+                    groupListFragment=new GroupListFragment();
                 groupListFragment.addGroup(group);
                 break;
             }
