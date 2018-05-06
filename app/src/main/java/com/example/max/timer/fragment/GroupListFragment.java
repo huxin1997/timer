@@ -1,6 +1,7 @@
 package com.example.max.timer.fragment;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,6 +16,7 @@ import com.example.max.timer.R;
 import com.example.max.timer.TDetailPageActivity;
 import com.example.max.timer.adapter.GroupListAdapter;
 import com.example.max.timer.bean.GroupBean;
+import com.example.max.timer.tool.SystemConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +27,12 @@ public class GroupListFragment extends Fragment {
 
     private View view;
     private RecyclerView recyclerView;
-    private List<GroupBean> data;
+    private List<GroupBean> data = new ArrayList<>();
     private GroupListAdapter groupListAdapter;
     private LinearLayoutManager linearLayoutManager;
+    private static Context mContext;
 
     public GroupListFragment() {
-        data = new ArrayList<>();
     }
 
 
@@ -47,25 +49,28 @@ public class GroupListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         initData();
+        mContext= SystemConfig.getInstanceContext();
         if (groupListAdapter == null)
-            groupListAdapter = new GroupListAdapter(getContext(), data);
+            groupListAdapter = new GroupListAdapter(mContext, data);
         recyclerView.setAdapter(groupListAdapter);
         groupListAdapter.setOnItemClickListener(new GroupListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Log.e(TAG,"click");
-                startActivity(new Intent(getActivity().getApplicationContext(), TDetailPageActivity.class));
+                Log.e(TAG, "click");
+                startActivity(new Intent(mContext, TDetailPageActivity.class));
             }
         });
     }
 
     private void initData() {
-        if(data==null)
+        if (data == null)
             data = new ArrayList<>();
 
     }
 
     public void notifyData() {
+        if (groupListAdapter == null)
+            groupListAdapter = new GroupListAdapter(mContext, data);
         groupListAdapter.notifyDataSetChanged();
     }
 

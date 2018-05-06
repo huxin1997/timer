@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     private static final String TAG = "MainActivity";
-    private static final String SP_NAME="SystemConfig";
+    private static final String SP_NAME = "SystemConfig";
 
     private FloatingActionButton btnAdd;
     private ImageView btnAddN;
@@ -70,9 +70,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
         drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
+        SystemConfig.setContext(getApplicationContext());
         supportFragmentManager = getSupportFragmentManager();
         if (timerListFragment == null)
             timerListFragment = new TimerListFragment();
+        if (groupListFragment == null)
+            groupListFragment = new GroupListFragment();
+        supportFragmentManager.beginTransaction().replace(R.id.real_content_container_fragment, groupListFragment).commit();
         supportFragmentManager.beginTransaction().replace(R.id.real_content_container_fragment, timerListFragment).commit();
         initView();
         initFabButton();
@@ -141,8 +145,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         getWindow().setAttributes(attributes);
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.add_timer_pop_selector, null, false);
-        Button personTimer = (Button) view.findViewById(R.id.btn_pop_add_person_timer);
-        Button teamTimer = (Button) view.findViewById(R.id.btn_pop_add_team_timer);
+        Button personTimer = view.findViewById(R.id.btn_pop_add_person_timer);
+        Button teamTimer = view.findViewById(R.id.btn_pop_add_team_timer);
         final PopupWindow popupWindow = new PopupWindow(view, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setClippingEnabled(false);
         popupWindow.setAnimationStyle(R.style.anim_pop_window);
@@ -195,9 +199,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             case SystemConfig.ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_RESULT: {
                 GroupBean group = (GroupBean) data.getSerializableExtra("group");
-                Toast.makeText(this, group.getHash() + "->" + group.getName(), Toast.LENGTH_SHORT).show();
-                if(groupListFragment==null)
-                    groupListFragment=new GroupListFragment();
                 groupListFragment.addGroup(group);
                 break;
             }
@@ -226,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_btn_two: {
                 if (groupListFragment == null)
                     groupListFragment = new GroupListFragment();
-                supportFragmentManager.beginTransaction().replace(R.id.real_content_container_fragment,groupListFragment).commit();
+                supportFragmentManager.beginTransaction().replace(R.id.real_content_container_fragment, groupListFragment).commit();
                 break;
             }
             case R.id.menu_btn_thr: {

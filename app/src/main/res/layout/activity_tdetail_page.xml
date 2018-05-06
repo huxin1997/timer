@@ -21,11 +21,20 @@
             android:id="@+id/iv_btn_qr_code"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_alignTop="@+id/iv_btn_menu_selector"
+            android:layout_toLeftOf="@+id/iv_btn_menu_selector"
+            android:layout_toStartOf="@+id/iv_btn_menu_selector"
+            android:layout_marginRight="5dp"
+            android:src="@drawable/ic_qr_code_black" />
+        <ImageView
+            android:id="@+id/iv_btn_menu_selector"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            android:src="@drawable/ic_qr_code_black" />
+            android:src="@drawable/ic_menu" />
 
         <ImageView
             android:id="@+id/iv_btn_back"

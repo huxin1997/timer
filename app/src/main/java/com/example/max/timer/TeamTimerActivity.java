@@ -1,11 +1,14 @@
 package com.example.max.timer;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -33,20 +36,58 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class TeamTimerActivity extends AppCompatActivity {
+
+    private static final String TAG = "TeamTimerActivity";
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private EditText etName;
     private Button creator;
     private Toolbar toolbar;
+    private OkHttpClient client;
+
+    private static HashMap<HttpUrl, List<Cookie>> cookieHashMap = new HashMap<>();
+    private ProgressDialog p;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_timer);
+
+        if (client == null) {
+            client = new OkHttpClient.Builder()
+                    .cookieJar(new CookieJar() {
+                        @Override
+                        public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                            cookieHashMap.put(HttpUrl.parse("http://118.89.22.131:8080/shiro-2"), cookies);
+                        }
+
+                        @Override
+                        public List<Cookie> loadForRequest(HttpUrl url) {
+                            if (cookieHashMap.size() == 0)
+                                return new ArrayList<>();
+                            return cookieHashMap.get(HttpUrl.parse("http://118.89.22.131:8080/shiro-2"));
+                        }
+                    })
+                    .build();
+        }
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("创建组");
@@ -81,16 +122,61 @@ public class TeamTimerActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                setResult(SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT, null);
 //                finish();
-                String name = etName.getText().toString();
-                if("".equals(name)){
+                final String name = etName.getText().toString();
+                if ("".equals(name)) {
                     Toast.makeText(TeamTimerActivity.this, "请填写名称！", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                GroupBean groupBean=new GroupBean(name,Tool.MD5(name+System.currentTimeMillis()));
-                Intent intent = new Intent();
-                intent.putExtra("group",groupBean);
-                setResult(SystemConfig.ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_RESULT,intent);
-                finish();
+
+                if (p == null)
+                    p = ProgressDialog.show(TeamTimerActivity.this, "请稍后...", "正在获取...", false, false);
+                else
+                    p.show();
+
+                @SuppressLint("HandlerLeak") final Handler handler = new Handler() {
+                    @Override
+                    public void handleMessage(Message msg) {
+                        super.handleMessage(msg);
+                        p.dismiss();
+                        GroupBean groupBean = new GroupBean(name, Tool.MD5(name + System.currentTimeMillis()));
+                        Intent intent = new Intent();
+                        intent.putExtra("group", groupBean);
+                        setResult(SystemConfig.ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_RESULT, intent);
+                        finish();
+                    }
+                };
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        RequestBody rb = RequestBody.create(JSON, "");
+                        Request request = new Request.Builder()
+                                .url("http://118.89.22.131:8080/login?username=admin&password=123456")
+                                .post(rb)
+                                .build();
+                        try {
+                            Response execute = client.newCall(request).execute();
+                            Log.e(TAG, execute.body().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        RequestBody requestBody = RequestBody.create(JSON, "{\"groupName\":\"" + name + "\",\"creatorId\":100}");
+
+                        Request request1 = new Request.Builder()
+                                .url("http://118.89.22.131:8080/v1/groups")
+                                .post(requestBody)
+                                .build();
+                        try {
+                            Response execute = client.newCall(request1).execute();
+                            Log.e(TAG, execute.body().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        handler.sendEmptyMessage(0);
+                    }
+                }).start();
+
             }
         });
 

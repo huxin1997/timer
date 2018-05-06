@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.example.max.timer.R;
 import com.example.max.timer.bean.GroupBean;
 import com.example.max.timer.fragment.GroupListFragment;
+import com.example.max.timer.tool.SystemConfig;
 
 import org.w3c.dom.Text;
 
@@ -40,7 +41,7 @@ public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.Grou
     }
 
     public GroupListAdapter(Context context, List<GroupBean> data){
-        this.context=context;
+        this.context= SystemConfig.getInstanceContext();
         this.data=data;
     }
 
