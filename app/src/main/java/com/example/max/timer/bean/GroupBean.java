@@ -9,12 +9,17 @@ import java.io.Serializable;
 public class GroupBean implements Serializable {
     private String name;
     private String hash;
+    private int id;
+
+    public GroupBean() {
+    }
 
     @Override
     public String toString() {
         return "GroupBean{" +
                 "name='" + name + '\'' +
                 ", hash='" + hash + '\'' +
+                ", id=" + id +
                 '}';
     }
 
@@ -34,9 +39,17 @@ public class GroupBean implements Serializable {
         this.hash = hash;
     }
 
-    public GroupBean(String name, String hash) {
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public GroupBean(String name, String hash, int id) {
         this.name = name;
         this.hash = hash;
+        this.id = id;
     }
 }

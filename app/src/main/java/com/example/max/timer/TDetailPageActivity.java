@@ -21,6 +21,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.example.max.timer.adapter.TimerDetailAdapter;
+import com.example.max.timer.bean.GroupBean;
 import com.example.max.timer.bean.TimerBean;
 import com.example.max.timer.tool.Tool;
 import com.google.zxing.BarcodeFormat;
@@ -36,6 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class TDetailPageActivity extends AppCompatActivity {
     private static final String TAG = "TDetailPageActivity";
 
     private TextView showAllMan;
-    private ImageView backIv,QrIv;
+    private ImageView backIv,QrIv,MoreIv;
     private LinearLayout llManList, llBottomBox;
     private int width;
     private List<String> list = new ArrayList<>();
@@ -53,12 +55,17 @@ public class TDetailPageActivity extends AppCompatActivity {
     private TimerDetailAdapter timerDetailAdapter;
     private AlertDialog.Builder builder;
     private AlertDialog alertDialog;
-    private TimerBean bean;
+    private GroupBean bean;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tdetail_page);
+
+        Intent intent = getIntent();
+        if(intent==null) finish();
+        bean = (GroupBean) intent.getSerializableExtra("bean");
+        if(bean ==null) finish();
 
         width = getWindow().getWindowManager().getDefaultDisplay().getWidth();
         if (timerDetailAdapter == null)
@@ -106,6 +113,13 @@ public class TDetailPageActivity extends AppCompatActivity {
             }
         });
 
+        MoreIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
     }
 
     private void showQR() {
@@ -115,7 +129,7 @@ public class TDetailPageActivity extends AppCompatActivity {
             BitMatrix result = null;
             MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
             try {
-                result = multiFormatWriter.encode(bean.getTimerID(), BarcodeFormat.QR_CODE, 400, 400);
+                result = multiFormatWriter.encode("{\"group\":"+bean.getId()+"}", BarcodeFormat.QR_CODE, 400, 400);
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                 bitmap = barcodeEncoder.createBitmap(result);
             } catch (WriterException e) {
@@ -154,6 +168,7 @@ public class TDetailPageActivity extends AppCompatActivity {
         llManList = (LinearLayout) findViewById(R.id.ll_member_list_container);
         llBottomBox = (LinearLayout) findViewById(R.id.ll_bottom_container_box);
         timerList = (ListView) findViewById(R.id.lv_team_detail_list);
+        MoreIv=findViewById(R.id.iv_btn_menu_selector);
     }
 
 }

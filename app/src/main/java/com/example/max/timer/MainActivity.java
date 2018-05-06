@@ -1,5 +1,6 @@
 package com.example.max.timer;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -86,7 +87,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initLogin() {
         sharedPreferences = getSharedPreferences(SP_NAME, MODE_PRIVATE);
-
+        boolean ls = sharedPreferences.getBoolean("LS", false);
+        if(ls){
+            //todo has be login
+        }else {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
     }
 
 

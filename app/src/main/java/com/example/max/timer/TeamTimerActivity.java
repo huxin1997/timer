@@ -61,34 +61,16 @@ public class TeamTimerActivity extends AppCompatActivity {
     private EditText etName;
     private Button creator;
     private Toolbar toolbar;
-    private OkHttpClient client;
 
-    private static HashMap<HttpUrl, List<Cookie>> cookieHashMap = new HashMap<>();
+
     private ProgressDialog p;
+    private Handler handler_;
 
+    @SuppressLint("HandlerLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_timer);
-
-        if (client == null) {
-            client = new OkHttpClient.Builder()
-                    .cookieJar(new CookieJar() {
-                        @Override
-                        public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                            cookieHashMap.put(HttpUrl.parse("http://118.89.22.131:8080/shiro-2"), cookies);
-                        }
-
-                        @Override
-                        public List<Cookie> loadForRequest(HttpUrl url) {
-                            if (cookieHashMap.size() == 0)
-                                return new ArrayList<>();
-                            return cookieHashMap.get(HttpUrl.parse("http://118.89.22.131:8080/shiro-2"));
-                        }
-                    })
-                    .build();
-        }
-
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("创建组");
         toolbar.inflateMenu(R.menu.toolbar_menu_qr_scan);
@@ -116,6 +98,21 @@ public class TeamTimerActivity extends AppCompatActivity {
         etName = findViewById(R.id.et_input_timer_name);
         creator = findViewById(R.id.btn_timer_create);
 
+        handler_ = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                int code = msg.arg1;
+                p.dismiss();
+                if(code==0){
+                    Toast.makeText(TeamTimerActivity.this, "加入成功！", Toast.LENGTH_SHORT).show();
+                    finish();
+                }else {
+                    //todo error
+                    Toast.makeText(TeamTimerActivity.this, "加入失败！请重试！", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
 
         creator.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,11 +134,17 @@ public class TeamTimerActivity extends AppCompatActivity {
                     @Override
                     public void handleMessage(Message msg) {
                         super.handleMessage(msg);
-                        p.dismiss();
-                        GroupBean groupBean = new GroupBean(name, Tool.MD5(name + System.currentTimeMillis()));
+                        int id = msg.arg1;
+                        if(id==-1){
+                            Toast.makeText(TeamTimerActivity.this, "生成失败！", Toast.LENGTH_SHORT).show();
+                            p.dismiss();
+                            return;
+                        }
+                        GroupBean groupBean = new GroupBean(name, Tool.MD5(name + System.currentTimeMillis()),id);
                         Intent intent = new Intent();
                         intent.putExtra("group", groupBean);
                         setResult(SystemConfig.ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_RESULT, intent);
+                        p.dismiss();
                         finish();
                     }
                 };
@@ -149,17 +152,7 @@ public class TeamTimerActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        RequestBody rb = RequestBody.create(JSON, "");
-                        Request request = new Request.Builder()
-                                .url("http://118.89.22.131:8080/login?username=admin&password=123456")
-                                .post(rb)
-                                .build();
-                        try {
-                            Response execute = client.newCall(request).execute();
-                            Log.e(TAG, execute.body().string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+
 
                         RequestBody requestBody = RequestBody.create(JSON, "{\"groupName\":\"" + name + "\",\"creatorId\":100}");
 
@@ -167,13 +160,21 @@ public class TeamTimerActivity extends AppCompatActivity {
                                 .url("http://118.89.22.131:8080/v1/groups")
                                 .post(requestBody)
                                 .build();
+                        int id=-1;
                         try {
-                            Response execute = client.newCall(request1).execute();
-                            Log.e(TAG, execute.body().string());
+                            Response execute = SystemConfig.client.newCall(request1).execute();
+                            String rejson = execute.body().string();
+                            Log.e(TAG, rejson);
+                            JSONObject j=new JSONObject(rejson);
+                            id = j.getJSONObject("data").getInt("id");
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                        handler.sendEmptyMessage(0);
+                        Message message=new Message();
+                        message.arg1=id;
+                        handler.sendMessage(message);
                     }
                 }).start();
 
@@ -189,10 +190,49 @@ public class TeamTimerActivity extends AppCompatActivity {
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (intentResult != null) {
             if (intentResult.getContents() == null) {
-                Toast.makeText(this, "扫描失败！请确认是否为邀请入组二维码！", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "扫描失败！无内容！", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "扫描成功！", Toast.LENGTH_LONG).show();
                 String ScanResult = intentResult.getContents();
+                if (p == null)
+                    p = ProgressDialog.show(TeamTimerActivity.this, "请稍后...", "正在获取...", false, false);
+                else
+                    p.show();
+                try {
+                    JSONObject jsonObject=new JSONObject(ScanResult);
+                    boolean group = jsonObject.has("group");
+                    if(group){
+                        final int gid = jsonObject.getInt("group");
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                RequestBody requestBody=RequestBody.create(TeamTimerActivity.JSON,"{\"gid\":"+gid+"}");
+                                Request request=new Request.Builder()
+                                        .url("http://118.89.22.131:8080/v1/groups/jojn")
+                                        .post(requestBody)
+                                        .build();
+                                try {
+                                    Response execute = SystemConfig.client.newCall(request).execute();
+                                    String s = execute.body().string();
+                                    Log.e(TAG,s);
+                                    JSONObject json=new JSONObject(s);
+                                    int code = json.getInt("code");
+                                    Message message=new Message();
+                                    message.arg1=code;
+                                    handler_.sendMessage(message);
+                                }catch (IOException e){
+                                    e.printStackTrace();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+
+                    }else {
+                        Toast.makeText(this, "扫描失败！请确认是否为邀请入组二维码！", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
