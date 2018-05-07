@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_head_layout"
     android:layout_width="match_parent"
     android:layout_height="160dp"
     android:padding="16dp"
     android:gravity="bottom"
     android:background="@android:color/holo_green_light"
+    android:orientation="vertical"
     >
-
     <TextView
+        android:id="@+id/tv_tag_head"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="HelloWorld!"
-        android:background="#f00"
+        android:text="@string/tv_login_from_here"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#fff"
+        />
+
+    <TextView
+        android:id="@+id/tv_user_name_head"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
         />
 
 </LinearLayout>

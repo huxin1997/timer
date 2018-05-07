@@ -56,7 +56,7 @@ import okhttp3.Response;
 public class TeamTimerActivity extends AppCompatActivity {
 
     private static final String TAG = "TeamTimerActivity";
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    
 
     private EditText etName;
     private Button creator;
@@ -154,7 +154,7 @@ public class TeamTimerActivity extends AppCompatActivity {
                     public void run() {
 
 
-                        RequestBody requestBody = RequestBody.create(JSON, "{\"groupName\":\"" + name + "\",\"creatorId\":100}");
+                        RequestBody requestBody = RequestBody.create(SystemConfig.JSON, "{\"groupName\":\"" + name + "\",\"creatorId\":100}");
 
                         Request request1 = new Request.Builder()
                                 .url("http://118.89.22.131:8080/v1/groups")
@@ -205,7 +205,7 @@ public class TeamTimerActivity extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                RequestBody requestBody=RequestBody.create(TeamTimerActivity.JSON,"{\"gid\":"+gid+"}");
+                                RequestBody requestBody=RequestBody.create(SystemConfig.JSON,"{\"gid\":"+gid+"}");
                                 Request request=new Request.Builder()
                                         .url("http://118.89.22.131:8080/v1/groups/jojn")
                                         .post(requestBody)

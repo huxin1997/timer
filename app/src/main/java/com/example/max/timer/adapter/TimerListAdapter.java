@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -109,6 +110,9 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
                         String s = chronometer.getText().toString();
                         holder_.chronometer.setFormat("%s");
                         if(s.equals("1:00:00")){
+                            Vibrator vibrator = (Vibrator)mContext.getSystemService(mContext.VIBRATOR_SERVICE);
+                            long[] patter = {0, 200, 300, 200, 300 ,500};
+                            vibrator.vibrate(patter, -1);
                             Notification.Builder builder=new Notification.Builder(mContext);
                             builder.setSmallIcon(R.mipmap.ic_launcher_round)
                                     .setContentTitle("倒计时提示！")

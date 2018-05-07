@@ -9,6 +9,7 @@ import java.util.List;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
 /**
@@ -23,9 +24,12 @@ public final class SystemConfig {
     public static final int ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT = 4001;
     public static final int ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_POST = 5002;
     public static final int ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_RESULT = 4002;
+    public static final int ACTIVITY_LOGIN_OK_ACTIVITY_POST = 5003;
+    public static final int ACTIVITY_LOGIN_OK_ACTIVITY_RESULT = 4003;
 
 
     public static HashMap<HttpUrl, List<Cookie>> cookieHashMap = new HashMap<>();
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
 
 

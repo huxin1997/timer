@@ -93,7 +93,7 @@ public class GroupListFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                RequestBody requestBody=RequestBody.create(TeamTimerActivity.JSON,"");
+                RequestBody requestBody=RequestBody.create(SystemConfig.JSON,"");
                 Request request=new Request.Builder()
                         .url("http://118.89.22.131:8080/v1/groups/my")
                         .post(requestBody)

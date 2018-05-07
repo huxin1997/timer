@@ -1,8 +1,11 @@
 package com.example.max.timer;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,10 +22,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.max.timer.adapter.TimerDetailAdapter;
 import com.example.max.timer.bean.GroupBean;
 import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -37,9 +42,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class TDetailPageActivity extends AppCompatActivity {
 
@@ -56,6 +66,8 @@ public class TDetailPageActivity extends AppCompatActivity {
     private AlertDialog.Builder builder;
     private AlertDialog alertDialog;
     private GroupBean bean;
+    private Handler handler;
+    private List<UserBean> userBeanList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +107,80 @@ public class TDetailPageActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("HandlerLeak")
     private void initData() {
+        userBeanList=new ArrayList<>();
+
+
+        handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what){
+                    case 1:{
+                        renderMemberList();
+                        break;
+                    }
+                    case 2:{
+                        break;
+                    }
+                    case 3:{
+                        Toast.makeText(TDetailPageActivity.this, "拉取信息失败！请返回重新进入！", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+            }
+        };
+
+        //init member list data
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Request request=new Request.Builder()
+                        .url("http://118.89.22.131:8080/v1/groups/"+bean.getId()+"/members")
+                        .build();
+                try {
+                    Response execute = SystemConfig.client.newCall(request).execute();
+                    String json = execute.body().string();
+                    Log.e(TAG,json);
+
+                    JSONObject j=new JSONObject(json);
+                    int code = j.getInt("code");
+                    if(code==0){
+                        JSONObject data = j.getJSONObject("data");
+                        JSONArray member = data.getJSONArray("member");
+                        userBeanList.clear();
+                        for(int i=0;i<member.length();i++){
+                            JSONObject rd = member.getJSONObject(i);
+                            userBeanList.add(new UserBean(rd.getInt("id"),rd.getString("username"),rd.getString("nickname")));
+                        }
+                        handler.sendEmptyMessage(1);
+                        return;
+                    }else
+                        handler.sendEmptyMessage(3);
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void renderMemberList() {
+        if(userBeanList.isEmpty()) {
+            Toast.makeText(this, "BUG了！", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //clear layout all views
+        llManList.removeAllViews();
+
+        for(int i=0;i<userBeanList.size();i++){
+            View inflate = LayoutInflater.from(SystemConfig.getInstanceContext()).inflate(R.layout.one_textview_layout, llManList, false);
+            TextView t=inflate.findViewById(R.id.tv_detail_man_name);
+            t.setText(userBeanList.get(i).getNickname());
+            llManList.addView(t);
+        }
+
     }
 
     private void initListener() {
@@ -171,4 +256,50 @@ public class TDetailPageActivity extends AppCompatActivity {
         MoreIv=findViewById(R.id.iv_btn_menu_selector);
     }
 
+
+    private class UserBean{
+        private int id;
+        private String username;
+        private String nickname;
+
+        @Override
+        public String toString() {
+            return "UserBean{" +
+                    "id=" + id +
+                    ", username='" + username + '\'' +
+                    ", nickname='" + nickname + '\'' +
+                    '}';
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public void setNickname(String nickname) {
+            this.nickname = nickname;
+        }
+
+        public UserBean(int id, String username, String nickname) {
+
+            this.id = id;
+            this.username = username;
+            this.nickname = nickname;
+        }
+    }
 }

@@ -1,10 +1,14 @@
 package com.example.max.timer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -26,6 +30,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.max.timer.adapter.TimerListAdapter;
@@ -38,9 +43,17 @@ import com.example.max.timer.tool.DBHelper;
 import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -57,6 +70,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GroupListFragment groupListFragment;
     private DrawerLayout drawerLayout;
     private SharedPreferences sharedPreferences;
+    private LinearLayout llMenuHead;
+    private boolean loginStatu;
+    private TextView headTag;
+    private TextView headUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,19 +99,119 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initView();
         initFabButton();
 //        initService();
+        initListener();
         initLogin();
+
+    }
+
+    private void initListener() {
+        llMenuHead.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!loginStatu){
+                    startActivityForResult(new Intent(MainActivity.this,LoginActivity.class),SystemConfig.ACTIVITY_LOGIN_OK_ACTIVITY_POST);
+                }
+            }
+        });
     }
 
     private void initLogin() {
         sharedPreferences = getSharedPreferences(SP_NAME, MODE_PRIVATE);
         boolean ls = sharedPreferences.getBoolean("LS", false);
-        if(ls){
+        loginStatu = ls;
+        if (ls) {
             //todo has be login
-        }else {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
+            @SuppressLint("HandlerLeak") final Handler handler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    if(msg.what==0){
+                        headTag.setText(getString(R.string.tv_welcome));
+                        headUsername.setText(sharedPreferences.getString("nickname","code:-10"));
+                        return;
+                    }
+                    switch (msg.what){
+                        case -1:
+                            Toast.makeText(MainActivity.this, "登录状态异常！请重新启动！", Toast.LENGTH_SHORT).show();
+                            finish();
+                            break;
+                        case -2:
+                            Toast.makeText(MainActivity.this, "意外错误！错误码：-4", Toast.LENGTH_SHORT).show();
+                            finish();
+                            break;
+                    }
+                    SharedPreferences.Editor edit = sharedPreferences.edit();
+                    edit.remove("uname");
+                    edit.remove("pword");
+                    edit.remove("id");
+                    edit.remove("LS");
+                    edit.apply();
+                    edit.commit();
+                }
+            };
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        loginStatusCheck();
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                        String message = e.getMessage();
+                        if("no_text".equals(message)){
+                            handler.sendEmptyMessage(-2);
+                        }else if ("ok".equals(message)){
+                            handler.sendEmptyMessage(0);
+                        }else {
+                            handler.sendEmptyMessage(-1);
+                        }
+                    }
+                }
+            }).start();
+        } else {
+            startActivityForResult(new Intent(MainActivity.this,LoginActivity.class),SystemConfig.ACTIVITY_LOGIN_OK_ACTIVITY_POST);
         }
     }
 
+    private void loginStatusCheck() throws IOException, JSONException {
+        String uname = sharedPreferences.getString("uname", "");
+        String pword = sharedPreferences.getString("pword", "");
+        if ("".equals(uname) || "".equals(pword)) {
+            throw new IOException("no_text");
+        }
+        RequestBody rb = RequestBody.create(SystemConfig.JSON, "");
+        Request request = new Request.Builder()
+                .url("http://118.89.22.131:8080/login?username=" + uname + "&password=" + pword)
+                .post(rb)
+                .build();
+        Response execute = SystemConfig.client.newCall(request).execute();
+        String string = execute.body().string();
+        Log.e(TAG,string);
+        JSONObject jsonObject = new JSONObject(string);
+        if (jsonObject.has("code")) {
+            int code = jsonObject.getInt("code");
+            if (code == -1)
+                throw new IOException("error");
+            else if(code==0){
+                return;
+            }
+        }else {
+            SharedPreferences.Editor edit = sharedPreferences.edit();
+            String username = jsonObject.getString("username");
+            String nickname = jsonObject.getString("nickname");
+            String password = jsonObject.getString("password");
+            int id = jsonObject.getInt("id");
+            edit.putInt("uid",id);
+            edit.putString("uname",username);
+            edit.putString("nickname",nickname);
+            edit.putString("pword",password);
+            edit.putBoolean("LS", true);
+            edit.apply();
+            edit.commit();
+            throw new IOException("ok");
+        }
+    }
 
     private void initService() {
         startService(new Intent(MainActivity.this, TimeCheckANetCheckService.class));
@@ -208,6 +325,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 groupListFragment.addGroup(group);
                 break;
             }
+            case SystemConfig.ACTIVITY_LOGIN_OK_ACTIVITY_RESULT:{
+                headTag.setText(getString(R.string.tv_welcome));
+                headUsername.setText(sharedPreferences.getString("nickname","code:-10"));
+                loginStatu=true;
+                break;
+            }
         }
     }
 
@@ -218,10 +341,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             btnAdd = findViewById(R.id.btn_add_timer);
         navigationView = findViewById(R.id.navgation_view);
         navigationView.setNavigationItemSelectedListener(this);
+        llMenuHead= (LinearLayout) navigationView.getHeaderView(0);
+        headTag = llMenuHead.findViewById(R.id.tv_tag_head);
+        headUsername = llMenuHead.findViewById(R.id.tv_user_name_head);
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if(!loginStatu){
+            AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
+            AlertDialog alertDialog = builder.setTitle("请登录！")
+                    .setMessage("您还没有登录，请登录后使用此功能！")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .create();
+            alertDialog.show();
+            return false;
+        }
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.menu_btn_one: {

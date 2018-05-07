@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.max.timer">
 
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -46,7 +47,10 @@
         <activity android:name=".ScanActivity" />
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="@string/title_activity_login"> </activity>
     </application>
 
 </manifest>
