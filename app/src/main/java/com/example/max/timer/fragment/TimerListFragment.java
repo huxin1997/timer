@@ -73,7 +73,7 @@ public class TimerListFragment extends Fragment {
 
 
         //TODO get data from database
-        List<TimerBean> timerBeans = DBHelper.readTimer4Database(getContext());
+        List<TimerBean> timerBeans = DBHelper.readTimer4Database(getContext(),DBHelper.TYPE_PERSON);
         data.addAll(timerBeans);
 
 

@@ -29,6 +29,9 @@ public final class SystemConfig {
     public static final int ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST = 5004;
     public static final int ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_RESULT = 4004;
 
+    public static final String MQTT_URL="tcp://118.89.22.131:61613";
+
+    public static String CLINT_ID="";
 
 
     public static HashMap<HttpUrl, List<Cookie>> cookieHashMap = new HashMap<>();

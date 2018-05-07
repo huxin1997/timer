@@ -1,10 +1,14 @@
 package com.example.max.timer;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -19,6 +23,7 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.max.timer.bean.GroupBean;
 import com.example.max.timer.bean.TimerBean;
 import com.example.max.timer.tool.DBHelper;
 import com.example.max.timer.tool.SystemConfig;
@@ -29,26 +34,45 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class TimerCreateActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "TimerCreateActivity";
 
-    private EditText etDate, etTime, etName,etDesc;
+    private EditText etDate, etTime, etName, etDesc;
     private int[] dateIntList = new int[]{-1, -1, -1};
     private int[] timeIntList = new int[]{-1, -1};
+    private SimpleDateFormat sdfParse = new SimpleDateFormat("yyyyMMddHHmm");
     private Button creator;
     private DBHelper dbHelper;
+    private int fromWhere;
+    private int gid;
+    private GroupBean groupBean;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timer_create);
 
-        Toolbar toolbar=findViewById(R.id.toolbar);
+        Intent intent = getIntent();
+        if (intent == null) return;
+        fromWhere = intent.getIntExtra("fromWhere", -1);
+        if (fromWhere == SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST) {
+            groupBean = (GroupBean) intent.getSerializableExtra("gid");
+            gid= groupBean.getId();
+        }
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("创建");
 //        toolbar.set
         toolbar.setNavigationIcon(R.drawable.ic_back_arrow_white);
@@ -63,7 +87,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 int itemId = item.getItemId();
-                if(itemId==R.id.toolbar_icon_qr_scan){
+                if (itemId == R.id.toolbar_icon_qr_scan) {
                     new IntentIntegrator(TimerCreateActivity.this)
                             .setOrientationLocked(false)
                             .setCaptureActivity(ScanActivity.class)
@@ -77,7 +101,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
         etTime = findViewById(R.id.et_input_time_time_selector);
         etName = findViewById(R.id.et_input_timer_name);
         creator = findViewById(R.id.btn_timer_create);
-        etDesc=findViewById(R.id.et_timer_desc);
+        etDesc = findViewById(R.id.et_timer_desc);
 
         etDesc.setOnClickListener(this);
         etDate.setOnClickListener(this);
@@ -99,15 +123,86 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                     }
                 }
                 String dateString = Tool.parseDate(dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1]);
-                TimerBean timerBean = new TimerBean(Tool.MD5(dateString + etName.getText().toString() + System.currentTimeMillis()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString, TimerBean.TYPE_PRESON_TIMER);
-                boolean b = DBHelper.saveTimer2Database(timerBean, TimerCreateActivity.this);
-                if (b) {
-                    Intent intent = new Intent();
-                    intent.putExtra("timerBean", timerBean);
-                    setResult(SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT, intent);
-                    finish();
-                } else {
-                    Toast.makeText(TimerCreateActivity.this, "创建失败！", Toast.LENGTH_SHORT).show();
+                final TimerBean timerBean = new TimerBean(Tool.MD5(dateString + etName.getText().toString() + System.currentTimeMillis()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString, TimerBean.TYPE_PRESON_TIMER);
+
+                switch (fromWhere) {
+                    case SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST: {
+
+                        final ProgressDialog progressDialog = ProgressDialog.show(TimerCreateActivity.this, "请稍后...", "请求中...", false, false);
+                        @SuppressLint("HandlerLeak") final Handler handler = new Handler() {
+                            @Override
+                            public void handleMessage(Message msg) {
+                                super.handleMessage(msg);
+                                progressDialog.dismiss();
+                                switch (msg.what) {
+                                    case -2:
+                                        Toast.makeText(TimerCreateActivity.this, "创建失败！请重试！", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case 1:
+                                        boolean b = DBHelper.saveTimer2Database(groupBean, timerBean, TimerCreateActivity.this);
+                                        if(b){
+                                            Intent intent = new Intent();
+                                            intent.putExtra("timerBean", timerBean);
+                                            setResult(SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_RESULT, intent);
+                                            finish();
+                                        }else {
+                                            Toast.makeText(TimerCreateActivity.this, "创建失败！", Toast.LENGTH_SHORT).show();
+                                        }
+                                        break;
+                                }
+                            }
+                        };
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                RequestBody requestBody = null;
+                                try {
+                                    JSONObject jsonObject = new JSONObject();
+                                    jsonObject.put("timerName", timerBean.getTimerNickName())
+                                            .put("creatorId", 1)
+                                            .put("createTime", System.currentTimeMillis())
+                                            .put("expireTime", sdfParse.parse(timerBean.getDateString()).getTime())
+                                            .put("notifyType", 0)
+                                            .put("groupId", gid);
+                                    requestBody = RequestBody.create(SystemConfig.JSON, jsonObject.toString());
+                                } catch (ParseException | JSONException e) {
+                                    e.printStackTrace();
+                                    handler.sendEmptyMessage(-2);
+                                }
+                                Request request = new Request.Builder()
+                                        .post(requestBody)
+                                        .url("http://118.89.22.131:8080/v1/timers")
+                                        .build();
+                                try {
+                                    Response execute = SystemConfig.client.newCall(request).execute();
+                                    String string = execute.body().string();
+                                    Log.e(TAG, string);
+                                    JSONObject jb = new JSONObject(string);
+                                    int code = jb.getInt("code");
+                                    if (code == 0)
+                                        handler.sendEmptyMessage(1);
+                                    else
+                                        handler.sendEmptyMessage(-2);
+                                } catch (IOException | JSONException e) {
+                                    e.printStackTrace();
+                                    handler.sendEmptyMessage(-2);
+                                }
+                            }
+                        }).start();
+                        break;
+                    }
+                    case SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_POST: {
+                        boolean b = DBHelper.saveTimer2Database(timerBean, TimerCreateActivity.this);
+                        if (b) {
+                            Intent intent = new Intent();
+                            intent.putExtra("timerBean", timerBean);
+                            setResult(SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_RESULT, intent);
+                            finish();
+                            break;
+                        } else {
+                            Toast.makeText(TimerCreateActivity.this, "创建失败！", Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
             }
         });
@@ -117,22 +212,22 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode,resultCode,data);
-        if(intentResult != null) {
-            if(intentResult.getContents() == null) {
-                Toast.makeText(this,"内容为空",Toast.LENGTH_LONG).show();
+        IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (intentResult != null) {
+            if (intentResult.getContents() == null) {
+                Toast.makeText(this, "内容为空", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this,"扫描成功",Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "扫描成功", Toast.LENGTH_LONG).show();
                 String ScanResult = intentResult.getContents();
                 try {
                     JSONObject jsonObject = new JSONObject(ScanResult);
-                    Log.e("JB",jsonObject.toString());
-                    String timerNickName = URLDecoder.decode(jsonObject.getString("timerNickName"),"utf-8");
-                    dateIntList[0]=jsonObject.getInt("year");
-                    dateIntList[1]=jsonObject.getInt("month");
-                    dateIntList[2]=jsonObject.getInt("day");
-                    timeIntList[0]=jsonObject.getInt("hour");
-                    timeIntList[1]=jsonObject.getInt("minute");
+                    Log.e("JB", jsonObject.toString());
+                    String timerNickName = URLDecoder.decode(jsonObject.getString("timerNickName"), "utf-8");
+                    dateIntList[0] = jsonObject.getInt("year");
+                    dateIntList[1] = jsonObject.getInt("month");
+                    dateIntList[2] = jsonObject.getInt("day");
+                    timeIntList[0] = jsonObject.getInt("hour");
+                    timeIntList[1] = jsonObject.getInt("minute");
                     String dateString = Tool.parseDate(dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1]);
                     TimerBean timerBean = new TimerBean(jsonObject.getString("timerID"), timerNickName, dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString, TimerBean.TYPE_PRESON_TIMER);
                     if (timeIntList[0] >= 0 && timeIntList[0] <= 9) {
@@ -157,7 +252,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                 }
             }
         } else {
-            super.onActivityResult(requestCode,resultCode,data);
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -174,9 +269,9 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                 showTimeSelector();
                 break;
             }
-            case R.id.et_timer_desc:{
-                AlertDialog.Builder builder=new AlertDialog.Builder(TimerCreateActivity.this);
-                final EditText editText=new EditText(TimerCreateActivity.this);
+            case R.id.et_timer_desc: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(TimerCreateActivity.this);
+                final EditText editText = new EditText(TimerCreateActivity.this);
                 editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(100)});
                 editText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
                 AlertDialog alertDialog = builder.setTitle("输入倒计时描述")
@@ -185,7 +280,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 String desc = editText.getText().toString();
-                                Log.e(TAG,desc);
+                                Log.e(TAG, desc);
                             }
                         })
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {

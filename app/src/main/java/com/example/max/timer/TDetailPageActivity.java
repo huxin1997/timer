@@ -37,8 +37,12 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +52,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -57,8 +62,10 @@ public class TDetailPageActivity extends AppCompatActivity {
 
     private static final String TAG = "TDetailPageActivity";
 
+    private static String SUB_TOPIC="";
+
     private TextView showAllMan;
-    private ImageView backIv,QrIv,MoreIv;
+    private ImageView backIv, QrIv, MoreIv;
     private LinearLayout llManList, llBottomBox;
     private int width;
     private List<String> list = new ArrayList<>();
@@ -71,25 +78,40 @@ public class TDetailPageActivity extends AppCompatActivity {
     private Handler handler;
     private List<UserBean> userBeanList;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tdetail_page);
 
         Intent intent = getIntent();
-        if(intent==null) finish();
+        if (intent == null) finish();
         bean = (GroupBean) intent.getSerializableExtra("bean");
-        if(bean ==null) finish();
+        if (bean == null) finish();
 
         width = getWindow().getWindowManager().getDefaultDisplay().getWidth();
-        if (timerDetailAdapter == null)
-            timerDetailAdapter = new TimerDetailAdapter(TDetailPageActivity.this, data);
 
         initViews();
+
 
         initListener();
 
         initData();
+        if (timerDetailAdapter == null){
+            timerDetailAdapter = new TimerDetailAdapter(TDetailPageActivity.this, data);
+            timerList.setAdapter(timerDetailAdapter);
+        }
+
+        try {
+            initMqtt();
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void initMqtt() throws MqttException {
+        SUB_TOPIC="groupId"+bean.getId();
 
     }
 
@@ -111,22 +133,22 @@ public class TDetailPageActivity extends AppCompatActivity {
 
     @SuppressLint("HandlerLeak")
     private void initData() {
-        userBeanList=new ArrayList<>();
+        userBeanList = new ArrayList<>();
 
 
-        handler = new Handler(){
+        handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                switch (msg.what){
-                    case 1:{
+                switch (msg.what) {
+                    case 1: {
                         renderMemberList();
                         break;
                     }
-                    case 2:{
+                    case 2: {
                         break;
                     }
-                    case 3:{
+                    case 3: {
                         Toast.makeText(TDetailPageActivity.this, "拉取信息失败！请返回重新进入！", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -138,27 +160,27 @@ public class TDetailPageActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Request request=new Request.Builder()
-                        .url("http://118.89.22.131:8080/v1/groups/"+bean.getId()+"/members")
+                Request request = new Request.Builder()
+                        .url("http://118.89.22.131:8080/v1/groups/" + bean.getId() + "/members")
                         .build();
                 try {
                     Response execute = SystemConfig.client.newCall(request).execute();
                     String json = execute.body().string();
-                    Log.e(TAG,json);
+                    Log.e(TAG, json);
 
-                    JSONObject j=new JSONObject(json);
+                    JSONObject j = new JSONObject(json);
                     int code = j.getInt("code");
-                    if(code==0){
+                    if (code == 0) {
                         JSONObject data = j.getJSONObject("data");
                         JSONArray member = data.getJSONArray("member");
                         userBeanList.clear();
-                        for(int i=0;i<member.length();i++){
+                        for (int i = 0; i < member.length(); i++) {
                             JSONObject rd = member.getJSONObject(i);
-                            userBeanList.add(new UserBean(rd.getInt("id"),rd.getString("username"),rd.getString("nickname")));
+                            userBeanList.add(new UserBean(rd.getInt("id"), rd.getString("username"), rd.getString("nickname")));
                         }
                         handler.sendEmptyMessage(1);
                         return;
-                    }else
+                    } else
                         handler.sendEmptyMessage(3);
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
@@ -168,7 +190,7 @@ public class TDetailPageActivity extends AppCompatActivity {
     }
 
     private void renderMemberList() {
-        if(userBeanList.isEmpty()) {
+        if (userBeanList.isEmpty()) {
             Toast.makeText(this, "BUG了！", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -176,9 +198,9 @@ public class TDetailPageActivity extends AppCompatActivity {
         //clear layout all views
         llManList.removeAllViews();
 
-        for(int i=0;i<userBeanList.size();i++){
+        for (int i = 0; i < userBeanList.size(); i++) {
             View inflate = LayoutInflater.from(SystemConfig.getInstanceContext()).inflate(R.layout.one_textview_layout, llManList, false);
-            TextView t=inflate.findViewById(R.id.tv_detail_man_name);
+            TextView t = inflate.findViewById(R.id.tv_detail_man_name);
             t.setText(userBeanList.get(i).getNickname());
             llManList.addView(t);
         }
@@ -203,14 +225,17 @@ public class TDetailPageActivity extends AppCompatActivity {
         MoreIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PopupMenu popupMenu=new PopupMenu(TDetailPageActivity.this,MoreIv);
-                popupMenu.getMenuInflater().inflate(R.menu.group_more_menu_item,popupMenu.getMenu());
+                PopupMenu popupMenu = new PopupMenu(TDetailPageActivity.this, MoreIv);
+                popupMenu.getMenuInflater().inflate(R.menu.group_more_menu_item, popupMenu.getMenu());
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-                        switch (menuItem.getItemId()){
+                        switch (menuItem.getItemId()) {
                             case R.id.btn_add_group_timer:
-                                startActivityForResult(new Intent(TDetailPageActivity.this,TimerCreateActivity.class),SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST);
+                                Intent intent = new Intent(TDetailPageActivity.this, TimerCreateActivity.class);
+                                intent.putExtra("fromWhere", SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST);
+                                intent.putExtra("gid",bean);
+                                startActivityForResult(intent, SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST);
                                 break;
                             case R.id.btn_add_group_member:
                                 break;
@@ -226,13 +251,19 @@ public class TDetailPageActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (resultCode){
-            case SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_RESULT:{
-
+        switch (resultCode) {
+            case SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_RESULT: {
+                TimerBean timerBean = (TimerBean) data.getSerializableExtra("timerBean");
+                addTimer2Group(timerBean);
                 break;
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void addTimer2Group(TimerBean timerBean) {
+        data.add(timerBean);
+        timerDetailAdapter.notifyDataSetChanged();
     }
 
     private void showQR() {
@@ -242,7 +273,7 @@ public class TDetailPageActivity extends AppCompatActivity {
             BitMatrix result = null;
             MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
             try {
-                result = multiFormatWriter.encode("{\"group\":"+bean.getId()+"}", BarcodeFormat.QR_CODE, 400, 400);
+                result = multiFormatWriter.encode("{\"group\":" + bean.getId() + "}", BarcodeFormat.QR_CODE, 400, 400);
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                 bitmap = barcodeEncoder.createBitmap(result);
             } catch (WriterException e) {
@@ -250,11 +281,11 @@ public class TDetailPageActivity extends AppCompatActivity {
             } catch (IllegalArgumentException iae) {
                 iae.printStackTrace();
             }
-            LinearLayout linearLayout=new LinearLayout(TDetailPageActivity.this);
+            LinearLayout linearLayout = new LinearLayout(TDetailPageActivity.this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             ImageView imageView = new ImageView(TDetailPageActivity.this);
             imageView.setImageBitmap(bitmap);
-            TextView textView=new TextView(TDetailPageActivity.this);
+            TextView textView = new TextView(TDetailPageActivity.this);
             textView.setText("通过软件添加界面扫一扫即可添加！");
             textView.setGravity(Gravity.CENTER);
             linearLayout.addView(imageView);
@@ -269,7 +300,7 @@ public class TDetailPageActivity extends AppCompatActivity {
             });
             alertDialog = builder.create();
             alertDialog.show();
-        }else {
+        } else {
             alertDialog.show();
         }
     }
@@ -277,15 +308,15 @@ public class TDetailPageActivity extends AppCompatActivity {
     private void initViews() {
         showAllMan = (TextView) findViewById(R.id.detail_show_all_man_in_group);
         backIv = (ImageView) findViewById(R.id.iv_btn_back);
-        QrIv=findViewById(R.id.iv_btn_qr_code);
+        QrIv = findViewById(R.id.iv_btn_qr_code);
         llManList = (LinearLayout) findViewById(R.id.ll_member_list_container);
         llBottomBox = (LinearLayout) findViewById(R.id.ll_bottom_container_box);
         timerList = (ListView) findViewById(R.id.lv_team_detail_list);
-        MoreIv=findViewById(R.id.iv_btn_menu_selector);
+        MoreIv = findViewById(R.id.iv_btn_menu_selector);
     }
 
 
-    private class UserBean{
+    private class UserBean {
         private int id;
         private String username;
         private String nickname;

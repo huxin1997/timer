@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if(msg.what==0){
                         headTag.setText(getString(R.string.tv_welcome));
                         headUsername.setText(sharedPreferences.getString("nickname","code:-10"));
+                        SystemConfig.CLINT_ID="User"+sharedPreferences.getInt("id",-1);
                         return;
                     }
                     switch (msg.what){
@@ -302,7 +303,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void selectorTime() {
-        startActivityForResult(new Intent(MainActivity.this, TimerCreateActivity.class), SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_POST);
+        Intent intent = new Intent(MainActivity.this, TimerCreateActivity.class);
+        intent.putExtra("fromWhere", SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST);
+        startActivityForResult(intent, SystemConfig.ACTIVITY_TIMER_CREATE_ACTIVITY_POST);
     }
 
 

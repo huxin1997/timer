@@ -14,6 +14,15 @@ import android.util.Log;
 import com.example.max.timer.R;
 import com.example.max.timer.bean.TimerBean;
 import com.example.max.timer.tool.DBHelper;
+import com.example.max.timer.tool.SystemConfig;
+
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.File;
 import java.util.Date;
@@ -43,6 +52,10 @@ public class TimeCheckANetCheckService extends Service {
     private SharedPreferences.Editor sp15MinEdit;
     private SharedPreferences.Editor sp5MinEdit;
 
+    private static MqttClient client;
+
+    private static final String TAG = "TimeCheckANetService";
+
     public TimeCheckANetCheckService() {
     }
 
@@ -54,17 +67,54 @@ public class TimeCheckANetCheckService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        spHour = getSharedPreferences(SP_NAME_ONE_HOUR, MODE_PRIVATE);
-        sp30Min = getSharedPreferences(SP_NAME_30_MIN, MODE_PRIVATE);
-        sp15Min = getSharedPreferences(SP_NAME_15_MIN, MODE_PRIVATE);
-        sp5Min = getSharedPreferences(SP_NAME_5_MIN, MODE_PRIVATE);
-        spHourEdit = spHour.edit();
-        sp30MinEdit = sp30Min.edit();
-        sp15MinEdit = sp15Min.edit();
-        sp5MinEdit = sp5Min.edit();
-        beginCheck();
+//        spHour = getSharedPreferences(SP_NAME_ONE_HOUR, MODE_PRIVATE);
+//        sp30Min = getSharedPreferences(SP_NAME_30_MIN, MODE_PRIVATE);
+//        sp15Min = getSharedPreferences(SP_NAME_15_MIN, MODE_PRIVATE);
+//        sp5Min = getSharedPreferences(SP_NAME_5_MIN, MODE_PRIVATE);
+//        spHourEdit = spHour.edit();
+//        sp30MinEdit = sp30Min.edit();
+//        sp15MinEdit = sp15Min.edit();
+//        sp5MinEdit = sp5Min.edit();
+//        beginCheck();
+
+        try {
+            client = new MqttClient(SystemConfig.MQTT_URL, SystemConfig.CLINT_ID,new MemoryPersistence());
+            MqttConnectOptions options=new MqttConnectOptions();
+            options.setKeepAliveInterval(60);
+            options.setConnectionTimeout(30);
+            options.setUserName("admin");
+            options.setPassword("password".toCharArray());
+            client.connect(options);
+            client.setCallback(new MqttCallback() {
+                @Override
+                public void connectionLost(Throwable throwable) {
+                    try {
+                        client.reconnect();
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+                    byte[] payload = mqttMessage.getPayload();
+                    String s1 = new String(payload, "utf-8");
+                    Log.e(TAG,s1);
+                }
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+
         return super.onStartCommand(intent, flags, startId);
     }
+
+
 
     private void beginCheck(){
         if (thread == null)
@@ -72,7 +122,7 @@ public class TimeCheckANetCheckService extends Service {
                 @Override
                 public void run() {
                     while (isLoop) {
-                        timerBeans = DBHelper.readTimer4Database(TimeCheckANetCheckService.this);
+                        timerBeans = DBHelper.readTimer4Database(TimeCheckANetCheckService.this,DBHelper.TYPE_PERSON);
                         Date date = new Date(System.currentTimeMillis());
                         int nowYear = date.getYear()+1900, nowMonth = date.getMonth()+1, nowDay = date.getDate(), nowHour = date.getHours(), nowMinute = date.getMinutes();
                         for (TimerBean t : timerBeans) {
