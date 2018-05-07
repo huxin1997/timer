@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,8 +35,9 @@ import java.util.Date;
 
 public class TimerCreateActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final String TAG = "TimerCreateActivity";
 
-    private EditText etDate, etTime, etName;
+    private EditText etDate, etTime, etName,etDesc;
     private int[] dateIntList = new int[]{-1, -1, -1};
     private int[] timeIntList = new int[]{-1, -1};
     private Button creator;
@@ -48,6 +51,13 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
         Toolbar toolbar=findViewById(R.id.toolbar);
         toolbar.setTitle("创建");
 //        toolbar.set
+        toolbar.setNavigationIcon(R.drawable.ic_back_arrow_white);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         toolbar.inflateMenu(R.menu.toolbar_menu_qr_scan);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
@@ -67,7 +77,9 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
         etTime = findViewById(R.id.et_input_time_time_selector);
         etName = findViewById(R.id.et_input_timer_name);
         creator = findViewById(R.id.btn_timer_create);
+        etDesc=findViewById(R.id.et_timer_desc);
 
+        etDesc.setOnClickListener(this);
         etDate.setOnClickListener(this);
         etTime.setOnClickListener(this);
 
@@ -161,7 +173,30 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
             case R.id.et_input_time_time_selector: {
                 showTimeSelector();
                 break;
-
+            }
+            case R.id.et_timer_desc:{
+                AlertDialog.Builder builder=new AlertDialog.Builder(TimerCreateActivity.this);
+                final EditText editText=new EditText(TimerCreateActivity.this);
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(100)});
+                editText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                AlertDialog alertDialog = builder.setTitle("输入倒计时描述")
+                        .setView(editText)
+                        .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String desc = editText.getText().toString();
+                                Log.e(TAG,desc);
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .create();
+                alertDialog.show();
+                break;
             }
         }
     }

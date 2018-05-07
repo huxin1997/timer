@@ -235,10 +235,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void popMenuN() {
-        WindowManager.LayoutParams attributes = getWindow().getAttributes();
-        attributes.alpha = 0.95f;
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        getWindow().setAttributes(attributes);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.add_timer_pop_selector, null, false);
         Button personTimer = (Button) view.findViewById(R.id.btn_pop_add_person_timer);

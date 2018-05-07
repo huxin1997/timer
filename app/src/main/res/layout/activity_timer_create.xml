@@ -14,24 +14,18 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:theme="@style/ToolbarTheme"
+            android:gravity="center"
             android:background="?attr/colorPrimary"
             />
 
     </android.support.design.widget.AppBarLayout>
 
-    <TextView
-        android:layout_margin="8dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/text_create_one_timer"
-        android:gravity="center"
-        android:textSize="24sp"
-        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:padding="16dp"
+        android:padding="8dp"
         >
 
         <TextView
@@ -47,17 +41,44 @@
             android:layout_height="wrap_content"
             android:text="@string/create_timer_nickname"
             android:enabled="true"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:gravity="center"
             android:singleLine="true"
             />
 
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:padding="16dp"
+        android:padding="8dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/creater_timer_desc_title"
+            />
+
+        <EditText
+            android:id="@+id/et_timer_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/create_timer_desc_content"
+            android:enabled="true"
+            android:focusable="false"
+            android:textSize="14sp"
+            android:singleLine="true"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="8dp"
         >
 
         <TextView
@@ -74,7 +95,7 @@
             android:hint="@string/et_select_one_date"
             android:enabled="true"
             android:focusable="false"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:gravity="center"
             android:singleLine="true"
             />
@@ -84,7 +105,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:padding="16dp"
+        android:padding="8dp"
         >
 
         <TextView
@@ -102,7 +123,7 @@
             android:enabled="true"
             android:focusable="false"
             android:letterSpacing="0.2"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:gravity="center"
             android:singleLine="true"
             android:textStyle="bold"
@@ -116,6 +137,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="创建"
+        android:textColor="#fff"
+        android:background="@drawable/btn_create_timer_bg"
+        />
+    <Button
+        android:id="@+id/btn_timer_advance"
+        android:layout_margin="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="高级设置"
         android:textColor="#fff"
         android:background="@drawable/btn_create_timer_bg"
         />

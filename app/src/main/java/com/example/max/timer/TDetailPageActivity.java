@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -19,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -201,10 +203,36 @@ public class TDetailPageActivity extends AppCompatActivity {
         MoreIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                PopupMenu popupMenu=new PopupMenu(TDetailPageActivity.this,MoreIv);
+                popupMenu.getMenuInflater().inflate(R.menu.group_more_menu_item,popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()){
+                            case R.id.btn_add_group_timer:
+                                startActivityForResult(new Intent(TDetailPageActivity.this,TimerCreateActivity.class),SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST);
+                                break;
+                            case R.id.btn_add_group_member:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
             }
         });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (resultCode){
+            case SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_RESULT:{
+
+                break;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void showQR() {

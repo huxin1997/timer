@@ -26,6 +26,9 @@ public final class SystemConfig {
     public static final int ACTIVITY_TIMER_CREATE_GROUP_ACTIVITY_RESULT = 4002;
     public static final int ACTIVITY_LOGIN_OK_ACTIVITY_POST = 5003;
     public static final int ACTIVITY_LOGIN_OK_ACTIVITY_RESULT = 4003;
+    public static final int ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST = 5004;
+    public static final int ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_RESULT = 4004;
+
 
 
     public static HashMap<HttpUrl, List<Cookie>> cookieHashMap = new HashMap<>();

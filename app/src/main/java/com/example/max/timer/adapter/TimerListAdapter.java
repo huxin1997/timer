@@ -43,6 +43,7 @@ import java.util.TimerTask;
 public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.TimerViewHolder> {
 
     private static final String TAG = "TimerListAdapter";
+    private static final long[] patter = {0, 200, 300, 200, 300 ,500};
 
     private List<HashMap<String,Object>> data;
     private List<TimerBean> data_;
@@ -55,10 +56,12 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
     private Toast apiLevelWarning;
     private List<Timer> timers=new ArrayList<>();
     private HashMap<String,Long> timeIntList=new HashMap<>();
+    private Vibrator vibrator;
 
     public TimerListAdapter(Context context, List<TimerBean> data_) {
         this.data_=data_;
         mContext=context;
+        vibrator = (Vibrator)mContext.getSystemService(mContext.VIBRATOR_SERVICE);
     }
 
     @Override
@@ -109,56 +112,7 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
                     public void onChronometerTick(Chronometer chronometer) {
                         String s = chronometer.getText().toString();
                         holder_.chronometer.setFormat("%s");
-                        if(s.equals("1:00:00")){
-                            Vibrator vibrator = (Vibrator)mContext.getSystemService(mContext.VIBRATOR_SERVICE);
-                            long[] patter = {0, 200, 300, 200, 300 ,500};
-                            vibrator.vibrate(patter, -1);
-                            Notification.Builder builder=new Notification.Builder(mContext);
-                            builder.setSmallIcon(R.mipmap.ic_launcher_round)
-                                    .setContentTitle("倒计时提示！")
-                                    .setContentText("您的倒计时还有一小时！");
-                            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                manager.notify(1,builder.build());
-                            }
-                        }
-                        if(s.equals("30:00")){
-                            Notification.Builder builder=new Notification.Builder(mContext);
-                            builder.setSmallIcon(R.mipmap.ic_launcher_round)
-                                    .setContentTitle("倒计时提示！")
-                                    .setContentText("您的倒计时还有30分钟！");
-                            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                manager.notify(2,builder.build());
-                            }
-                        }
-                        if(s.equals("15:00")){
-                            Notification.Builder builder=new Notification.Builder(mContext);
-                            builder.setSmallIcon(R.mipmap.ic_launcher_round)
-                                    .setContentTitle("倒计时提示！")
-                                    .setContentText("您的倒计时还有15分钟！");
-                            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                manager.notify(3,builder.build());
-                            }
-                        }
-                        if(s.equals("5:00")){
-                            Notification.Builder builder=new Notification.Builder(mContext);
-                            builder.setSmallIcon(R.mipmap.ic_launcher_round)
-                                    .setContentTitle("倒计时提示！")
-                                    .setContentText("您的倒计时还有5分钟！");
-                            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                manager.notify(4,builder.build());
-                            }
-                        }
-                        if(s.equals("00:00")||s.indexOf("−")!=-1){
-                            holder_.chronometer.stop();
-                            holder_.chronometer.setOnChronometerTickListener(null);
-                            holder_.chronometer.setVisibility(View.GONE);
-                            holder_.chronometerT.setText("时间已到！");
-                            holder_.chronometerT.setVisibility(View.VISIBLE);
-                        }
+
                     }
                 });
             }else {
@@ -241,7 +195,59 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
         });
     }
 
-
+    private void notify_(String s, TimerViewHolder holder_){
+        if(s.equals("1:00:00")){
+            vibrator.vibrate(patter, -1);
+            Notification.Builder builder=new Notification.Builder(mContext);
+            builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                    .setContentTitle("倒计时提示！")
+                    .setContentText("您的倒计时还有一小时！");
+            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                manager.notify(1,builder.build());
+            }
+        }
+        if(s.equals("30:00")){
+            vibrator.vibrate(patter, -1);
+            Notification.Builder builder=new Notification.Builder(mContext);
+            builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                    .setContentTitle("倒计时提示！")
+                    .setContentText("您的倒计时还有30分钟！");
+            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                manager.notify(2,builder.build());
+            }
+        }
+        if(s.equals("15:00")){
+            vibrator.vibrate(patter, -1);
+            Notification.Builder builder=new Notification.Builder(mContext);
+            builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                    .setContentTitle("倒计时提示！")
+                    .setContentText("您的倒计时还有15分钟！");
+            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                manager.notify(3,builder.build());
+            }
+        }
+        if(s.equals("5:00")){
+            vibrator.vibrate(patter, -1);
+            Notification.Builder builder=new Notification.Builder(mContext);
+            builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                    .setContentTitle("倒计时提示！")
+                    .setContentText("您的倒计时还有5分钟！");
+            NotificationManager manager = (NotificationManager) mContext.getSystemService(mContext.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                manager.notify(4,builder.build());
+            }
+        }
+        if(s.equals("00:00")||s.indexOf("−")!=-1){
+            holder_.chronometer.stop();
+            holder_.chronometer.setOnChronometerTickListener(null);
+            holder_.chronometer.setVisibility(View.GONE);
+            holder_.chronometerT.setText("时间已到！");
+            holder_.chronometerT.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     public int getItemCount() {

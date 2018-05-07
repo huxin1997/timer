@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -16,7 +16,24 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/real_content_layout_n"> </include>
+    <FrameLayout
+        android:id="@+id/real_content_container_fragment"
+        android:layout_width="match_parent"
+        android:layout_marginTop="55dp"
+        android:layout_height="match_parent">
 
+    </FrameLayout>
 
-</android.support.design.widget.CoordinatorLayout>
+    <ImageView
+        android:id="@+id/btn_ib_add_timer"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/plus_64x64"
+        android:scaleType="fitXY"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        />
+
+</RelativeLayout>
