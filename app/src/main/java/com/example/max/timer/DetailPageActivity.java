@@ -3,19 +3,23 @@ package com.example.max.timer;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.tool.SystemConfig;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -29,15 +33,20 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 public class DetailPageActivity extends AppCompatActivity {
 
-    private TextView timerNickName, timerId;
+    private TextView timerNickName, timerId,timerDesc;
     private ImageView ivBack, ivQR;
     private TimerBean bean;
     private AlertDialog.Builder builder;
     private AlertDialog alertDialog;
+    private Chronometer chronometer;
+    private SimpleDateFormat sdfParse = new SimpleDateFormat("yyyyMMddHHmm");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +62,32 @@ public class DetailPageActivity extends AppCompatActivity {
         timerId = findViewById(R.id.tv_timer_detail_id_number);
         ivBack = findViewById(R.id.iv_btn_back);
         ivQR = findViewById(R.id.iv_btn_qr_code);
+        timerDesc=findViewById(R.id.tv_desc_person_);
+        chronometer=findViewById(R.id.person_detail_chronometer);
 
         timerNickName.setText(bean.getTimerNickName());
-        timerId.setText(bean.getTimerID());
+        timerId.setText("");
+
+        String dateString = bean.getDateString();
+        Date parse=null;
+        try {
+            parse = sdfParse.parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if(parse==null){ Toast.makeText(this, "程序错误！", Toast.LENGTH_SHORT).show();finish();}
+
+        long l = parse.getTime() - System.currentTimeMillis();
+
+
+        chronometer.setBase(SystemClock.elapsedRealtime()+l);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            chronometer.setCountDown(true);
+        }
+        chronometer.start();
+
+        timerDesc.setText(bean.getDesc());
 
         ivBack.setOnClickListener(new View.OnClickListener() {
             @Override

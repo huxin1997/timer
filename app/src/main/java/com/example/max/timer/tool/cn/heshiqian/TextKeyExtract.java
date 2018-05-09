@@ -59,9 +59,7 @@ public class TextKeyExtract {
         int AMorPM=-1;
         String[] keyP={"下午","晚上","中午","午后"};
         String[] keyA={"上午","早"};
-
-        str.replace("快一点","");
-
+        str=str.replace("快一点","");
         for(String s:keyP){
             if(str.contains(s)){
                 AMorPM=KeyType.KEY_PM_TIME;
@@ -111,7 +109,7 @@ public class TextKeyExtract {
 
     private int rex24Hour(String str){
         Pattern compile24 = Pattern.compile("(([1-9])|([1-2][0-9])\\?)点");
-        Pattern compileTF = Pattern.compile("((六)|(七)|(八)|(九)|(十)|([十][一])|([十][二])|([十][三])|([十][四])|([十][五])|([十][六])|([十][七])|([十][八])|([十][九])|([二][十])|([二][十][一])|([二][十][二]))点");
+        Pattern compileTF = Pattern.compile("((一)|(二)|(三)|(四)|(五)|(六)|(七)|(八)|(九)|(十)|([十][一])|([十][二])|([十][三])|([十][四])|([十][五])|([十][六])|([十][七])|([十][八])|([十][九])|([二][十])|([二][十][一])|([二][十][二]))点");
         Matcher matcher = compile24.matcher(str);
         Matcher tf = compileTF.matcher(str);
         if (matcher.find()) {

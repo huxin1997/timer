@@ -35,8 +35,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE localtimerlist(hash_id String,time_nick_name String,year integer,month integer,day integer,houer integer,minute integer,type integer,date_string String)");
-        db.execSQL("CREATE TABLE localgrouplist(group_id String,group_name String,grouo_id_int integer,hash_id String,time_nick_name String,year integer,month integer,day integer,houer integer,minute integer,type integer,date_string String)");
+        db.execSQL("CREATE TABLE localtimerlist(hash_id String,time_nick_name String,year integer,month integer,day integer,houer integer,minute integer,type integer,date_string String,desc_ String)");
+        db.execSQL("CREATE TABLE localgrouplist(group_id String,group_name String,grouo_id_int integer,hash_id String,time_nick_name String,year integer,month integer,day integer,houer integer,minute integer,type integer,date_string String,desc_ String)");
     }
 
     @Override
@@ -59,6 +59,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("minute",timerBean.getMinute());
         cv.put("type",timerBean.getTimerType());
         cv.put("date_string",timerBean.getDateString());
+        cv.put("desc_",timerBean.getDesc());
         long insert = writableDatabase.insert(GROUP_TABLE_NAME, null, cv);
         Log.e(TAG,insert+"");
         return insert>=1;
@@ -76,6 +77,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("minute",timerBean.getMinute());
         cv.put("type",timerBean.getTimerType());
         cv.put("date_string",timerBean.getDateString());
+        cv.put("desc_",timerBean.getDesc());
         long insert = writableDatabase.insert(TABLENAME, null, cv);
         Log.e(TAG,insert+"");
         return insert>=1;
@@ -99,6 +101,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     bean.setMinute(query.getInt(query.getColumnIndex("minute")));
                     bean.setDateString(query.getString(query.getColumnIndex("date_string")));
                     int type_ = query.getInt(query.getColumnIndex("type"));
+                    bean.setDesc(query.getString(query.getColumnIndex("desc_")));
                     bean.setTimerType(type_==TimerBean.TYPE_GROUP_TIMER?TimerBean.TYPE_GROUP_TIMER:TimerBean.TYPE_PRESON_TIMER);
                     list.add(bean);
                 }
@@ -121,6 +124,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     bean.setMinute(query.getInt(query.getColumnIndex("minute")));
                     bean.setDateString(query.getString(query.getColumnIndex("date_string")));
                     int type_ = query.getInt(query.getColumnIndex("type"));
+                    bean.setDesc(query.getString(query.getColumnIndex("desc_")));
                     bean.setTimerType(type_==TimerBean.TYPE_GROUP_TIMER?TimerBean.TYPE_GROUP_TIMER:TimerBean.TYPE_PRESON_TIMER);
                     list.add(bean);
                 }

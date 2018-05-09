@@ -21,6 +21,8 @@ public class TimerBean implements Serializable,Cloneable{
     private String dateString;
     private int timerType=TYPE_PRESON_TIMER;
 
+    private String desc;
+
 
     @Override
     public String toString() {
@@ -34,6 +36,7 @@ public class TimerBean implements Serializable,Cloneable{
                 ", minute=" + minute +
                 ", dateString='" + dateString + '\'' +
                 ", timerType=" + timerType +
+                ", desc='" + desc + '\'' +
                 '}';
     }
 
@@ -117,7 +120,16 @@ public class TimerBean implements Serializable,Cloneable{
         this.timerType = timerType;
     }
 
-    public TimerBean(String timerID, String timerNickName, int year, int month, int day, int hour, int minute, String dateString, int timerType) {
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public TimerBean(String timerID, String timerNickName, int year, int month, int day, int hour, int minute, String dateString, int timerType, String desc) {
+
         this.timerID = timerID;
         this.timerNickName = timerNickName;
         this.year = year;
@@ -127,6 +139,7 @@ public class TimerBean implements Serializable,Cloneable{
         this.minute = minute;
         this.dateString = dateString;
         this.timerType = timerType;
+        this.desc = desc;
     }
 
     public TimerBean() {

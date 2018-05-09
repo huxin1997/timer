@@ -104,7 +104,7 @@ public class TDetailPageActivity extends AppCompatActivity {
         initViews();
 
         Gname.setText(bean.getName());
-//        Gcode.setText(bean.getHash());
+        Gcode.setText("");
 
         initListener();
 

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -45,6 +46,11 @@ import com.example.max.timer.tool.Tool;
 import com.example.max.timer.tool.cn.heshiqian.TextKeyExtract;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static TimeCheckANetCheckService service;
     private ServiceConnection serviceConnection;
     private SimpleDateFormat sdfParse = new SimpleDateFormat("yyyyMMddHHmm");
+    private AlertDialog.Builder builder;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,9 +126,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                 if (!loginStatu) {
                     startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), SystemConfig.ACTIVITY_LOGIN_OK_ACTIVITY_POST);
+                } else {
+                    try {
+                        showUserCode();
+                    } catch (WriterException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
+    }
+
+    private void showUserCode() throws WriterException {
+        if (builder == null) {
+            builder = new AlertDialog.Builder(MainActivity.this);
+            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+            int id = sharedPreferences.getInt("id", -1);
+            BitMatrix encode = multiFormatWriter.encode("{\"userId\":"+id+"}", BarcodeFormat.QR_CODE, 450, 450);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.createBitmap(encode);
+            LinearLayout linearLayout = new LinearLayout(MainActivity.this);
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
+            ImageView imageView = new ImageView(MainActivity.this);
+            imageView.setImageBitmap(bitmap);
+            TextView textView = new TextView(MainActivity.this);
+            textView.setText("通过手表扫描即可同步！");
+            textView.setGravity(Gravity.CENTER);
+            linearLayout.addView(imageView);
+            linearLayout.addView(textView);
+            builder.setView(linearLayout).setPositiveButton("关闭", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            alertDialog = builder.create();
+            alertDialog.show();
+        } else alertDialog.show();
     }
 
     private void cleanLoginInfo() {
@@ -137,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Log.e(TAG, "normal logout");
                     case 2:
                         Toast.makeText(MainActivity.this, "注销成功！请重启App后使用！", Toast.LENGTH_SHORT).show();
-                        loginStatu=false;
+                        loginStatu = false;
                         headTag.setText(getString(R.string.tv_welcome));
                         headUsername.setText("");
                         break;

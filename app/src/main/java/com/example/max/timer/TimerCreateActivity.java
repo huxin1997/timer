@@ -133,7 +133,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                     }
                 }
                 String dateString = Tool.parseDate(dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1]);
-                final TimerBean timerBean = new TimerBean(Tool.MD5(dateString + etName.getText().toString() + System.currentTimeMillis()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString, TimerBean.TYPE_PRESON_TIMER);
+                final TimerBean timerBean = new TimerBean(Tool.MD5(dateString + etName.getText().toString() + System.currentTimeMillis()), etName.getText().toString(), dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString, TimerBean.TYPE_PRESON_TIMER,etDesc.getText().toString());
 
                 switch (fromWhere) {
                     case SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST: {
@@ -239,7 +239,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                     timeIntList[0] = jsonObject.getInt("hour");
                     timeIntList[1] = jsonObject.getInt("minute");
                     String dateString = Tool.parseDate(dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1]);
-                    TimerBean timerBean = new TimerBean(jsonObject.getString("timerID"), timerNickName, dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString, TimerBean.TYPE_PRESON_TIMER);
+                    TimerBean timerBean = new TimerBean(jsonObject.getString("timerID"), timerNickName, dateIntList[0], dateIntList[1], dateIntList[2], timeIntList[0], timeIntList[1], dateString, TimerBean.TYPE_PRESON_TIMER,etDesc.getText().toString());
                     if (timeIntList[0] >= 0 && timeIntList[0] <= 9) {
                         if (timeIntList[1] >= 0 && timeIntList[1] <= 9) {
                             etTime.setText("0" + timeIntList[0] + ":0" + timeIntList[1]);

@@ -46,7 +46,8 @@ import java.util.TimerTask;
 public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.TimerViewHolder> {
 
     private static final String TAG = "TimerListAdapter";
-    private static final long[] patter = {0, 200, 300, 200, 300, 500};
+    private static final long[] patter = {100, 300, 100, 300, 100, 500};
+    private static final long[] patterWas = {500, 300, 100, 200, 100, 200};
 
     private List<HashMap<String, Object>> data;
     private List<TimerBean> data_;
@@ -207,12 +208,19 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
         });
     }
 
+    private void doingNow(){
+        vibrator.vibrate(patter, -1);
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Ringtone r = RingtoneManager.getRingtone(mContext, notification);
+        r.play();
+    }
+    private void doingDone(){
+        vibrator.vibrate(patter, 0);
+    }
+
     private void notify_(String s, TimerViewHolder holder_) {
         if (s.equals("1:00:00")) {
-            vibrator.vibrate(patter, 0);
-            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            Ringtone r = RingtoneManager.getRingtone(mContext, notification);
-            r.play();
+            doingNow();
             Notification.Builder builder = new Notification.Builder(mContext);
             builder.setSmallIcon(R.mipmap.ic_launcher_round)
                     .setContentTitle("倒计时提示！")
@@ -223,7 +231,7 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
             }
         }
         if (s.equals("30:00")) {
-            vibrator.vibrate(patter, -1);
+            doingNow();
             Notification.Builder builder = new Notification.Builder(mContext);
             builder.setSmallIcon(R.mipmap.ic_launcher_round)
                     .setContentTitle("倒计时提示！")
@@ -234,7 +242,7 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
             }
         }
         if (s.equals("15:00")) {
-            vibrator.vibrate(patter, -1);
+            doingNow();
             Notification.Builder builder = new Notification.Builder(mContext);
             builder.setSmallIcon(R.mipmap.ic_launcher_round)
                     .setContentTitle("倒计时提示！")
@@ -245,7 +253,7 @@ public class TimerListAdapter extends RecyclerView.Adapter<TimerListAdapter.Time
             }
         }
         if (s.equals("5:00")) {
-            vibrator.vibrate(patter, -1);
+            doingNow();
             Notification.Builder builder = new Notification.Builder(mContext);
             builder.setSmallIcon(R.mipmap.ic_launcher_round)
                     .setContentTitle("倒计时提示！")
