@@ -48,4 +48,7 @@
     <string name="tv_login_from_here">点击此处登录</string>
     <string name="creater_timer_desc_title">描述：</string>
     <string name="create_timer_desc_content">点击此处编辑</string>
+    <string name="btn_text_sb_input">文本识别输入</string>
+    <string name="btn_voice_input">语音输入</string>
+    <string name="no_one_timer">你还没有创建任何个人倒计时哦~\n点这里去创建一个吧！</string>
 </resources>

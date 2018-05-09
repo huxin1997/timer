@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/menu_btn_one" android:title="倒计时列表"></item>
-    <item android:id="@+id/menu_btn_two" android:title="我的组"></item>
-    <item android:id="@+id/menu_btn_thr" android:title="我的好友"></item>
+    <item android:id="@+id/menu_btn_one" android:title="倒计时列表"> </item>
+    <item android:id="@+id/menu_btn_two" android:title="我的组"> </item>
+    <item android:id="@+id/menu_btn_thr" android:title="我的好友"> </item>
+    <item android:id="@+id/menu_btn_for" android:title="注销账号"> </item>
+    <item android:id="@+id/menu_btn_fiv" android:title="退出"> </item>
 </menu>

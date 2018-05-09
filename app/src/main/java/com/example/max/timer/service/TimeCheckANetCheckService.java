@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -25,6 +26,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,35 +53,18 @@ public class TimeCheckANetCheckService extends Service {
     private SharedPreferences.Editor sp30MinEdit;
     private SharedPreferences.Editor sp15MinEdit;
     private SharedPreferences.Editor sp5MinEdit;
+    private static List<String> TOPICLIST=new ArrayList<>();
 
     private static MqttClient client;
+    private final IBinder binder=new TCNCBinder();
 
     private static final String TAG = "TimeCheckANetService";
+    private MqttConnectOptions options;
 
     public TimeCheckANetCheckService() {
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-//        spHour = getSharedPreferences(SP_NAME_ONE_HOUR, MODE_PRIVATE);
-//        sp30Min = getSharedPreferences(SP_NAME_30_MIN, MODE_PRIVATE);
-//        sp15Min = getSharedPreferences(SP_NAME_15_MIN, MODE_PRIVATE);
-//        sp5Min = getSharedPreferences(SP_NAME_5_MIN, MODE_PRIVATE);
-//        spHourEdit = spHour.edit();
-//        sp30MinEdit = sp30Min.edit();
-//        sp15MinEdit = sp15Min.edit();
-//        sp5MinEdit = sp5Min.edit();
-//        beginCheck();
-
         try {
             client = new MqttClient(SystemConfig.MQTT_URL, SystemConfig.CLINT_ID,new MemoryPersistence());
-            MqttConnectOptions options=new MqttConnectOptions();
+            options = new MqttConnectOptions();
             options.setKeepAliveInterval(60);
             options.setConnectionTimeout(30);
             options.setUserName("admin");
@@ -110,11 +95,52 @@ public class TimeCheckANetCheckService extends Service {
         } catch (MqttException e) {
             e.printStackTrace();
         }
+    }
+
+    public class TCNCBinder extends Binder{
+        public TimeCheckANetCheckService getService(){
+            return TimeCheckANetCheckService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+//        spHour = getSharedPreferences(SP_NAME_ONE_HOUR, MODE_PRIVATE);
+//        sp30Min = getSharedPreferences(SP_NAME_30_MIN, MODE_PRIVATE);
+//        sp15Min = getSharedPreferences(SP_NAME_15_MIN, MODE_PRIVATE);
+//        sp5Min = getSharedPreferences(SP_NAME_5_MIN, MODE_PRIVATE);
+//        spHourEdit = spHour.edit();
+//        sp30MinEdit = sp30Min.edit();
+//        sp15MinEdit = sp15Min.edit();
+//        sp5MinEdit = sp5Min.edit();
+//        beginCheck();
+
+
 
         return super.onStartCommand(intent, flags, startId);
     }
 
+    public void subTopic(String groupStr) throws MqttException {
+//        if(TOPICLIST.contains(groupStr)) return;
+//        TOPICLIST.add(groupStr);
+//        client.subscribe(groupStr);
+    }
 
+    public void unsubTopic(String groupStr) throws MqttException {
+        if(!TOPICLIST.contains(groupStr)) return;
+        TOPICLIST.remove(groupStr);
+        client.unsubscribe(groupStr);
+    }
 
     private void beginCheck(){
         if (thread == null)

@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.max.timer.MainActivity;
 import com.example.max.timer.R;
 import com.example.max.timer.TDetailPageActivity;
 import com.example.max.timer.TeamTimerActivity;
@@ -23,6 +24,7 @@ import com.example.max.timer.bean.GroupBean;
 import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,11 +115,14 @@ public class GroupListFragment extends Fragment {
                         groupBean.setName(groupName);
                         groupBean.setHash(Tool.MD5(groupName+System.currentTimeMillis()));
                         data.add(groupBean);
+                        MainActivity.getService().subTopic("Group"+id);
                     }
                     handler.sendEmptyMessage(0);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (MqttException e) {
                     e.printStackTrace();
                 }
 

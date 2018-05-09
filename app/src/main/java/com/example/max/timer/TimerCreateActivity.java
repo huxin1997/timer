@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.example.max.timer.bean.GroupBean;
 import com.example.max.timer.bean.TimerBean;
+import com.example.max.timer.service.TimeCheckANetCheckService;
 import com.example.max.timer.tool.DBHelper;
 import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
@@ -69,7 +70,7 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
         fromWhere = intent.getIntExtra("fromWhere", -1);
         if (fromWhere == SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST) {
             groupBean = (GroupBean) intent.getSerializableExtra("gid");
-            gid= groupBean.getId();
+            gid = groupBean.getId();
         }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -106,6 +107,15 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
         etDesc.setOnClickListener(this);
         etDate.setOnClickListener(this);
         etTime.setOnClickListener(this);
+
+        etDesc.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                etDesc.setText("");
+                Toast.makeText(TimerCreateActivity.this, "已清空！", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
 
         creator.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -270,17 +280,19 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                 break;
             }
             case R.id.et_timer_desc: {
+                String oldStr = etDesc.getText().toString();
                 AlertDialog.Builder builder = new AlertDialog.Builder(TimerCreateActivity.this);
-                final EditText editText = new EditText(TimerCreateActivity.this);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(100)});
-                editText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                View inflate = View.inflate(TimerCreateActivity.this, R.layout.dialog_desc_input_layout, null);
+                final EditText editText=inflate.findViewById(R.id.et_desc_input);
+                editText.setText(oldStr);
                 AlertDialog alertDialog = builder.setTitle("输入倒计时描述")
-                        .setView(editText)
+                        .setView(inflate)
                         .setPositiveButton("确认", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 String desc = editText.getText().toString();
                                 Log.e(TAG, desc);
+                                etDesc.setText(desc);
                             }
                         })
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {

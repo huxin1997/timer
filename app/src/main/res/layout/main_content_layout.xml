@@ -24,16 +24,66 @@
 
     </FrameLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <!--<android.support.design.widget.FloatingActionButton-->
+        <!--android:id="@+id/btn_add_timer"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom|end"-->
+        <!--android:src="@drawable/ic_plus_symbol"-->
+        <!--android:layout_marginBottom="16dp"-->
+        <!--android:layout_marginRight="16dp"-->
+        <!--android:backgroundTint="@color/colorAccent"-->
+        <!--/>-->
+
+    <com.github.clans.fab.FloatingActionMenu
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/btn_add_timer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:src="@drawable/plus_64x64"
-        android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
-        android:backgroundTint="@color/colorAccent"
-        />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        app:menu_colorNormal="@color/colorAccent"
+        app:menu_colorPressed="@color/fabPress"
+        app:menu_icon="@drawable/ic_plus_symbol"
+        app:menu_backgroundColor="#ccffffff"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        >
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_add_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_label="创建组"
+            app:fab_colorNormal="@color/fabNormal"
+            android:src="@drawable/ic_teamwork"
+            />
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_add_person"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_label="创建倒计时"
+            app:fab_colorNormal="@color/fabNormal"
+            android:src="@drawable/ic_alarm_clock"
+            />
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_input_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_label="识别输入"
+            app:fab_colorNormal="@color/fabNormal"
+            android:src="@drawable/ic_text_lines"
+            />
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_input_voice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_label="语音输入"
+            app:fab_colorNormal="@color/fabNormal"
+            android:src="@drawable/ic_microphone"
+            />
+
+    </com.github.clans.fab.FloatingActionMenu>
 
 
 </android.support.design.widget.CoordinatorLayout>

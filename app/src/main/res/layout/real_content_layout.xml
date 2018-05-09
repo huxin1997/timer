@@ -16,4 +16,31 @@
 
     </android.support.v7.widget.RecyclerView>
 
+    <LinearLayout
+        android:id="@+id/ll_main_page_tips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:visibility="gone"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_one_timer"
+            android:textSize="20sp"
+            android:layout_marginLeft="16dp"
+            />
+
+        <ImageView
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow"
+            android:layout_marginLeft="16dp"
+            />
+
+    </LinearLayout>
+
 </RelativeLayout>

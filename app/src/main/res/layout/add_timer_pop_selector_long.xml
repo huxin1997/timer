@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="120dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/pop_window_bg"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <Button
+        android:id="@+id/btn_pop_add_person_timer"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/pop_button_background"
+        android:padding="8dp"
+        android:text="@string/btn_text_sb_input" />
+
+    <Button
+        android:id="@+id/btn_pop_add_team_timer"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/pop_button_background"
+        android:padding="8dp"
+        android:text="@string/btn_voice_input" />
+</LinearLayout>

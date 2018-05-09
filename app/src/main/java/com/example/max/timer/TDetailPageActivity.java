@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -50,10 +51,16 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -62,9 +69,9 @@ public class TDetailPageActivity extends AppCompatActivity {
 
     private static final String TAG = "TDetailPageActivity";
 
-    private static String SUB_TOPIC="";
+    private static String SUB_TOPIC = "";
 
-    private TextView showAllMan;
+    private TextView showAllMan, Gname, Gcode;
     private ImageView backIv, QrIv, MoreIv;
     private LinearLayout llManList, llBottomBox;
     private int width;
@@ -77,7 +84,10 @@ public class TDetailPageActivity extends AppCompatActivity {
     private GroupBean bean;
     private Handler handler;
     private List<UserBean> userBeanList;
+    private List<TimerBean> timerBeans;
+    private SimpleDateFormat sdfUtc = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000+0000", Locale.CHINA);
 
+    private static final String d=".SSS+SSSS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,11 +103,13 @@ public class TDetailPageActivity extends AppCompatActivity {
 
         initViews();
 
+        Gname.setText(bean.getName());
+//        Gcode.setText(bean.getHash());
 
         initListener();
 
         initData();
-        if (timerDetailAdapter == null){
+        if (timerDetailAdapter == null) {
             timerDetailAdapter = new TimerDetailAdapter(TDetailPageActivity.this, data);
             timerList.setAdapter(timerDetailAdapter);
         }
@@ -111,7 +123,7 @@ public class TDetailPageActivity extends AppCompatActivity {
     }
 
     private void initMqtt() throws MqttException {
-        SUB_TOPIC="groupId"+bean.getId();
+        SUB_TOPIC = "groupId" + bean.getId();
 
     }
 
@@ -134,6 +146,7 @@ public class TDetailPageActivity extends AppCompatActivity {
     @SuppressLint("HandlerLeak")
     private void initData() {
         userBeanList = new ArrayList<>();
+        timerBeans=new ArrayList<>();
 
 
         handler = new Handler() {
@@ -146,6 +159,7 @@ public class TDetailPageActivity extends AppCompatActivity {
                         break;
                     }
                     case 2: {
+                        renderTimerList();
                         break;
                     }
                     case 3: {
@@ -160,38 +174,133 @@ public class TDetailPageActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Request request = new Request.Builder()
+                Request members = new Request.Builder()
                         .url("http://118.89.22.131:8080/v1/groups/" + bean.getId() + "/members")
                         .build();
-                try {
-                    Response execute = SystemConfig.client.newCall(request).execute();
-                    String json = execute.body().string();
-                    Log.e(TAG, json);
+                Request timers = new Request.Builder()
+                        .url("http://118.89.22.131:8080/v1/groups/" + bean.getId() + "/timers")
+                        .build();
 
-                    JSONObject j = new JSONObject(json);
-                    int code = j.getInt("code");
-                    if (code == 0) {
-                        JSONObject data = j.getJSONObject("data");
-                        JSONArray member = data.getJSONArray("member");
-                        userBeanList.clear();
-                        for (int i = 0; i < member.length(); i++) {
-                            JSONObject rd = member.getJSONObject(i);
-                            userBeanList.add(new UserBean(rd.getInt("id"), rd.getString("username"), rd.getString("nickname")));
+                SystemConfig.client.newCall(members).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String string = response.body().string();
+                        Log.e(TAG, string);
+                        try {
+                            JSONObject j = new JSONObject(string);
+                            int code = j.getInt("code");
+                            if (code == 0) {
+                                JSONObject data = j.getJSONObject("data");
+                                JSONArray member = data.getJSONArray("member");
+                                userBeanList.clear();
+                                for (int i = 0; i < member.length(); i++) {
+                                    JSONObject rd = member.getJSONObject(i);
+                                    userBeanList.add(new UserBean(rd.getInt("id"), rd.getString("username"), rd.getString("nickname")));
+                                }
+                                handler.sendEmptyMessage(1);
+                                return;
+                            } else
+                                handler.sendEmptyMessage(3);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                        handler.sendEmptyMessage(1);
-                        return;
-                    } else
-                        handler.sendEmptyMessage(3);
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
+                    }
+                });
+                SystemConfig.client.newCall(timers).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String string = response.body().string();
+                        Log.e(TAG, string);
+
+                        try {
+                            JSONObject j = new JSONObject(string);
+                            int code = j.getInt("code");
+                            if (code == 0) {
+                                JSONArray data = j.getJSONArray("data");
+                                timerBeans.clear();
+                                for (int i = 0; i < data.length(); i++) {
+                                    JSONObject rd = data.getJSONObject(i);
+                                    String timerName = rd.getString("timerName");
+                                    String createTime = rd.getString("expireTime");
+//                                    createTime=createTime.substring(0,createTime.length()-d.length());
+                                    Date parse = sdfUtc.parse(createTime);
+                                    int id = rd.getInt("id");
+                                    TimerBean timerBean=new TimerBean();
+                                    timerBean.setTimerID(Tool.MD5(id+"timer"+ SystemClock.elapsedRealtime()));
+                                    timerBean.setYear(parse.getYear()+1900);
+                                    timerBean.setMonth(parse.getMonth()+1);
+                                    timerBean.setDay(parse.getDate());
+                                    timerBean.setHour(parse.getHours());
+                                    timerBean.setMinute(parse.getMinutes());
+                                    timerBean.setTimerType(TimerBean.TYPE_PRESON_TIMER);
+                                    timerBean.setTimerNickName(timerName);
+                                    timerBean.setDateString(Tool.parseDate(parse.getYear()+1900,parse.getMonth()+1,parse.getDate(),parse.getHours(),parse.getMinutes()));
+                                    timerBeans.add(timerBean);
+                                }
+                                handler.sendEmptyMessage(2);
+                                return;
+                            } else
+                                handler.sendEmptyMessage(3);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+
+//                try {
+//                    Response execute = SystemConfig.client.newCall(request).execute();
+//                    String json = execute.body().string();
+//                    Log.e(TAG, json);
+//
+//                    JSONObject j = new JSONObject(json);
+//                    int code = j.getInt("code");
+//                    if (code == 0) {
+//                        JSONObject data = j.getJSONObject("data");
+//                        JSONArray member = data.getJSONArray("member");
+//                        userBeanList.clear();
+//                        for (int i = 0; i < member.length(); i++) {
+//                            JSONObject rd = member.getJSONObject(i);
+//                            userBeanList.add(new UserBean(rd.getInt("id"), rd.getString("username"), rd.getString("nickname")));
+//                        }
+//                        handler.sendEmptyMessage(1);
+//                        return;
+//                    } else
+//                        handler.sendEmptyMessage(3);
+//                } catch (IOException | JSONException e) {
+//                    e.printStackTrace();
+//                }
             }
         }).start();
     }
 
+    private void renderTimerList() {
+        if(timerBeans.isEmpty()){
+//            Toast.makeText(this, "Bug了", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        data.clear();
+
+        data.addAll(timerBeans);
+        timerDetailAdapter.notifyDataSetChanged();
+    }
+
     private void renderMemberList() {
         if (userBeanList.isEmpty()) {
-            Toast.makeText(this, "BUG了！", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "BUG了！", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -234,7 +343,7 @@ public class TDetailPageActivity extends AppCompatActivity {
                             case R.id.btn_add_group_timer:
                                 Intent intent = new Intent(TDetailPageActivity.this, TimerCreateActivity.class);
                                 intent.putExtra("fromWhere", SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST);
-                                intent.putExtra("gid",bean);
+                                intent.putExtra("gid", bean);
                                 startActivityForResult(intent, SystemConfig.ACTIVITY_CREATE_TIMER_INNER_GROUP_ACTIVITY_POST);
                                 break;
                             case R.id.btn_add_group_member:
@@ -313,6 +422,8 @@ public class TDetailPageActivity extends AppCompatActivity {
         llBottomBox = (LinearLayout) findViewById(R.id.ll_bottom_container_box);
         timerList = (ListView) findViewById(R.id.lv_team_detail_list);
         MoreIv = findViewById(R.id.iv_btn_menu_selector);
+        Gname = findViewById(R.id.tv_team_timer_detail_nickname);
+        Gcode = findViewById(R.id.tv_team_timer_detail_id_number);
     }
 
 

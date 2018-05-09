@@ -40,4 +40,6 @@ dependencies {
     compile 'com.squareup.okio:okio:1.14.0'
     compile 'com.squareup.okhttp3:okhttp:3.10.0'
     compile files('libs/org.eclipse.paho.client.mqttv3-1.2.0.jar')
+    //floating button
+    compile 'com.github.clans:fab:1.6.4'
 }
