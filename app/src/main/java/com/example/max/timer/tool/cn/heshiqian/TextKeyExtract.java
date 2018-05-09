@@ -76,6 +76,10 @@ public class TextKeyExtract {
 
         int hours = date.getHours();
 
+        if(hour==-1){
+            return "";
+        }
+
         if(AMorPM==KeyType.KEY_AM_TIME){
             //do nothing
         }else if(AMorPM==KeyType.KEY_PM_TIME){

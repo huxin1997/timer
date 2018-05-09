@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -23,15 +22,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +38,7 @@ import com.example.max.timer.service.TimeCheckANetCheckService;
 import com.example.max.timer.tool.DBHelper;
 import com.example.max.timer.tool.SystemConfig;
 import com.example.max.timer.tool.Tool;
+import com.example.max.timer.tool.VoiceInput;
 import com.example.max.timer.tool.cn.heshiqian.TextKeyExtract;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -56,7 +52,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -90,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SimpleDateFormat sdfParse = new SimpleDateFormat("yyyyMMddHHmm");
     private AlertDialog.Builder builder;
     private AlertDialog alertDialog;
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -361,16 +357,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 popMenuL();
+
                 btnAdd.close(false);
             }
         });
 
+        // TODO: 2018/5/9  语音输入
         btnVoiceInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 btnAdd.close(true);
+                popMenuL();
+                VoiceInput voiceInput = new VoiceInput(MainActivity.this);
+                voiceInput.init(editText);
             }
         });
+
 
 //        if (!(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)){
 //            btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -405,15 +407,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void popMenuL() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         View inflate = View.inflate(MainActivity.this, R.layout.dialog_paste_text_layout, null);
-        final EditText editText = inflate.findViewById(R.id.et_input_paste_text);
+        editText = inflate.findViewById(R.id.et_input_paste_text);
         AlertDialog alertDialog = builder.setView(inflate)
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String str = editText.getText().toString();
-                        Toast.makeText(MainActivity.this, "" + str, Toast.LENGTH_SHORT).show();
-                        dialogInterface.dismiss();
+//                        Toast.makeText(MainActivity.this, "" + str, Toast.LENGTH_SHORT).show();
+                        if("".equals(str)){
+                            Toast.makeText(MainActivity.this, "好像没有内容哦!", Toast.LENGTH_SHORT).show();
+                            dialogInterface.dismiss();
+                            return;
+                        }
+
                         String extract = TextKeyExtract.extract(str, TextKeyExtract.KeyType.KEY_TIME_TYPE);
+
+                        if("".equals(extract)){
+                            Toast.makeText(MainActivity.this, "没有识别出内容哦~我们会继续努力的！", Toast.LENGTH_SHORT).show();
+                            dialogInterface.dismiss();
+                            return;
+                        }
+
                         try {
                             Date parse = sdfParse.parse(extract);
                             Log.e(TAG, String.valueOf(parse.getTime()));
@@ -436,6 +450,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
+
+                        dialogInterface.dismiss();
                     }
                 })
                 .setTitle("识别")
