@@ -59,6 +59,9 @@ public class TextKeyExtract {
         int AMorPM=-1;
         String[] keyP={"下午","晚上","中午","午后"};
         String[] keyA={"上午","早"};
+
+        str.replace("快一点","");
+
         for(String s:keyP){
             if(str.contains(s)){
                 AMorPM=KeyType.KEY_PM_TIME;

@@ -1,6 +1,7 @@
 package com.example.max.timer;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -124,45 +125,58 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void cleanLoginInfo() {
 
-        @SuppressLint("HandlerLeak") final Handler handler=new Handler(){
+        if (!loginStatu) return;
+
+        final ProgressDialog show = ProgressDialog.show(MainActivity.this, "请稍后...", "请求中...", false, false);
+        @SuppressLint("HandlerLeak") final Handler handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-
+                switch (msg.what) {
+                    case 1:
+                        Log.e(TAG, "normal logout");
+                    case 2:
+                        Toast.makeText(MainActivity.this, "注销成功！请重启App后使用！", Toast.LENGTH_SHORT).show();
+                        loginStatu=false;
+                        headTag.setText(getString(R.string.tv_welcome));
+                        headUsername.setText("");
+                        break;
+                    case -1:
+                        Toast.makeText(MainActivity.this, "注销失败！需要重启App！", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                SharedPreferences.Editor edit = sharedPreferences.edit();
+                edit.remove("uname");
+                edit.remove("pword");
+                edit.remove("id");
+                edit.remove("LS");
+                edit.apply();
+                edit.commit();
+                show.dismiss();
             }
         };
-
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Request request=new Request.Builder()
+                Request request = new Request.Builder()
                         .url("http://118.89.22.131:8080/logout")
                         .build();
                 try {
                     Response execute = SystemConfig.client.newCall(request).execute();
                     String string = execute.body().string();
-                    JSONObject jsonObject=new JSONObject(string);
+                    JSONObject jsonObject = new JSONObject(string);
                     int code = jsonObject.getInt("code");
-                    if(code==0){
+                    if (code == 0) {
                         handler.sendEmptyMessage(1);
-                    }else {
-
+                    } else {
+                        handler.sendEmptyMessage(2);
                     }
-                } catch (IOException e) {
+                } catch (IOException | JSONException e) {
                     e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    handler.sendEmptyMessage(-1);
                 }
             }
         }).start();
-
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.remove("uname");
-        edit.remove("pword");
-        edit.remove("id");
-        edit.remove("LS");
-        edit.apply();
-        edit.commit();
     }
 
     private void initLogin() {
@@ -274,6 +288,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
         Intent intent = new Intent(this, TimeCheckANetCheckService.class);
         bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
     }
 
     private void initFabButton() {
@@ -433,22 +453,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         headUsername = llMenuHead.findViewById(R.id.tv_user_name_head);
     }
 
+    private void popLoginTip() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog alertDialog = builder.setTitle("请登录！")
+                .setMessage("您还没有登录，请登录后使用此功能！")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .create();
+        alertDialog.show();
+
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (!loginStatu) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            AlertDialog alertDialog = builder.setTitle("请登录！")
-                    .setMessage("您还没有登录，请登录后使用此功能！")
-                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
-                        }
-                    })
-                    .create();
-            alertDialog.show();
-            return false;
-        }
+
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.menu_btn_one: {
@@ -458,6 +481,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.menu_btn_two: {
+                if (!loginStatu) {
+                    popLoginTip();
+                    return true;
+                }
                 if (groupListFragment == null)
                     groupListFragment = new GroupListFragment();
                 supportFragmentManager.beginTransaction().replace(R.id.real_content_container_fragment, groupListFragment).commit();
@@ -468,6 +495,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.menu_btn_for: {
+                if (!loginStatu) {
+                    popLoginTip();
+                    return true;
+                }
                 cleanLoginInfo();
                 startActivity(new Intent(this, LoginActivity.class));
                 break;
@@ -480,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         drawerLayout.closeDrawer(Gravity.START);
-        return false;
+        return true;
     }
 
 
