@@ -128,7 +128,19 @@ public class TextKeyExtract {
                 int end = tf.end();
                 String substring = str.substring(start, end-1);
 
-                if("六".equals(substring)){
+                if("一".equals(substring)){
+                    return 1;
+                }else if("两".equals(substring)){
+                    return 2;
+                }else if("二".equals(substring)){
+                    return 2;
+                }else if("三".equals(substring)){
+                    return 3;
+                }else if("四".equals(substring)){
+                    return 4;
+                }else if("五".equals(substring)){
+                    return 5;
+                }else if("六".equals(substring)){
                     return 6;
                 }else if("七".equals(substring)){
                     return 7;

@@ -2,6 +2,7 @@ package com.example.max.timer;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -86,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AlertDialog.Builder builder;
     private AlertDialog alertDialog;
     private EditText editText;
+    private long oldTime;
+    private ClipboardManager clipboardManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,8 +140,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (builder == null) {
             builder = new AlertDialog.Builder(MainActivity.this);
             MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-            int id = sharedPreferences.getInt("id", -1);
-            BitMatrix encode = multiFormatWriter.encode("{\"userId\":"+id+"}", BarcodeFormat.QR_CODE, 450, 450);
+            int id = sharedPreferences.getInt("uid", -1);
+            BitMatrix encode = multiFormatWriter.encode("{\"userId\":" + id + "}", BarcodeFormat.QR_CODE, 450, 450);
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.createBitmap(encode);
             LinearLayout linearLayout = new LinearLayout(MainActivity.this);
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 SharedPreferences.Editor edit = sharedPreferences.edit();
                 edit.remove("uname");
                 edit.remove("pword");
-                edit.remove("id");
+                edit.remove("uid");
                 edit.remove("LS");
                 edit.apply();
                 edit.commit();
@@ -326,6 +329,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
         Intent intent = new Intent(this, TimeCheckANetCheckService.class);
         bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+        clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
     }
 
     @Override
@@ -414,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String str = editText.getText().toString();
 //                        Toast.makeText(MainActivity.this, "" + str, Toast.LENGTH_SHORT).show();
-                        if("".equals(str)){
+                        if ("".equals(str)) {
                             Toast.makeText(MainActivity.this, "好像没有内容哦!", Toast.LENGTH_SHORT).show();
                             dialogInterface.dismiss();
                             return;
@@ -422,7 +426,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         String extract = TextKeyExtract.extract(str, TextKeyExtract.KeyType.KEY_TIME_TYPE);
 
-                        if("".equals(extract)){
+                        if ("".equals(extract)) {
                             Toast.makeText(MainActivity.this, "没有识别出内容哦~我们会继续努力的！", Toast.LENGTH_SHORT).show();
                             dialogInterface.dismiss();
                             return;
@@ -441,6 +445,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             timerBean.setMonth(parse.getMonth());
                             timerBean.setYear(parse.getYear() + 1900);
                             timerBean.setTimerID(Tool.MD5(extract + "我的倒计时" + System.currentTimeMillis()));
+                            timerBean.setDesc(str);
                             boolean b = DBHelper.saveTimer2Database(timerBean, MainActivity.this);
                             if (b) {
                                 timerListFragment.addTimer(timerBean);
@@ -454,9 +459,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         dialogInterface.dismiss();
                     }
                 })
+//                .setNegativeButton("清空", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        AlertDialog.Builder builder1=new AlertDialog.Builder(MainActivity.this);
+//                        AlertDialog alertDialog1 = builder1.setTitle("清空已输入的内容？")
+//                                .setPositiveButton("是的", new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialogInterface3, int i) {
+//                                        editText.setText("");
+//                                        dialogInterface3.dismiss();
+//                                    }
+//                                })
+//                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialogInterface3, int i) {
+//                                        dialogInterface3.dismiss();
+//                                    }
+//                                })
+//                                .create();
+//                        alertDialog1.show();
+//                    }
+//                })
                 .setTitle("识别")
                 .create();
         alertDialog.show();
+//        ClipData primaryClip = clipboardManager.getPrimaryClip();
+//        if(primaryClip!=null&&primaryClip.getItemCount()>0){
+//            String s = primaryClip.getItemAt(0).getText().toString();
+//            editText.setText(s);
+//        }
     }
 
 
@@ -572,6 +604,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+        if (btnAdd.isOpened()) {
+            btnAdd.close(true);
+            return;
+        } else if (drawerLayout.isDrawerOpen(Gravity.START)) {
+            drawerLayout.closeDrawer(Gravity.START);
+            return;
+        }
+
+        long nowTime = System.currentTimeMillis();
+
+        if (nowTime - oldTime > 2000) {
+            Toast.makeText(MainActivity.this, "再按一次返回键退出！", Toast.LENGTH_SHORT).show();
+            oldTime = nowTime;
+            return;
+        }else {
+            finish();
+//            System.exit(0);
+        }
+    }
 
     public static TimeCheckANetCheckService getService() {
         return service;

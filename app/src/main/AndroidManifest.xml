@@ -54,5 +54,8 @@
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/title_activity_login"> </activity>
     </application>
+    <meta-data
+        android:name="IFLYTEK_APPKEY"
+        android:value="5af16548"/>
 
 </manifest>

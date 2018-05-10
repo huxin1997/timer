@@ -173,7 +173,8 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                                             .put("createTime", System.currentTimeMillis())
                                             .put("expireTime", sdfParse.parse(timerBean.getDateString()).getTime())
                                             .put("notifyType", 0)
-                                            .put("groupId", gid);
+                                            .put("groupId", gid)
+                                            .put("msg",timerBean.getDesc());
                                     requestBody = RequestBody.create(SystemConfig.JSON, jsonObject.toString());
                                 } catch (ParseException | JSONException e) {
                                     e.printStackTrace();
@@ -349,12 +350,12 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
             });
             datePickerDialog.show();
         } else {
-            DatePicker datePicker = new DatePicker(TimerCreateActivity.this);
-            datePicker.init(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), new DatePicker.OnDateChangedListener() {
+            final DatePicker datePicker = new DatePicker(TimerCreateActivity.this);
+            datePicker.init(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), new DatePicker.OnDateChangedListener() {
                 @Override
                 public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                     dateIntList[0] = year;
-                    dateIntList[1] = monthOfYear;
+                    dateIntList[1] = monthOfYear+1;
                     dateIntList[2] = dayOfMonth;
                 }
             });
@@ -364,6 +365,11 @@ public class TimerCreateActivity extends AppCompatActivity implements View.OnCli
                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            if(dateIntList[0]==-1||dateIntList[1]==-1||dateIntList[2]==-1){
+                                dateIntList[0]=datePicker.getYear();
+                                dateIntList[1]=datePicker.getMonth()+1;
+                                dateIntList[2]=datePicker.getDayOfMonth();
+                            }
                             etDate.setText(dateIntList[0] + "-" + dateIntList[1] + "-" + dateIntList[2]);
                             dialog.dismiss();
                         }
